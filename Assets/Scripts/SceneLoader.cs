@@ -31,4 +31,13 @@ public class SceneLoader : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+    
+    IEnumerable Transitioning()
+    {
+
+
+
+        yield return new WaitForSeconds(1f);
+    }
+
 }
