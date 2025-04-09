@@ -8,7 +8,9 @@ public class MazeController : MonoBehaviour
         GenerateMaze();
         RemoveRandomWalls(100);
         CreateOpenSpace();
+        CreateWallsOfOtherTypes(30, 3);
         Create3DWalls();
+        GenerateCoinsOnRandomCells();
     }
 
     private void GenerateMaze()
@@ -109,6 +111,45 @@ public class MazeController : MonoBehaviour
         }
     }
 
+
+    private void CreateWallsOfOtherTypes(int wallsToChange, int wallType) 
+    {
+        int changed = 0;
+        while (changed < wallsToChange)
+        {
+            int i = UnityEngine.Random.Range(0, GameData.MazeRows);
+            int j = UnityEngine.Random.Range(0, GameData.MazeColumns);
+            List<string> possibleWalls = new List<string>();
+
+            if (GameData.Maze[i, j].WallTop > 1) possibleWalls.Add("top");
+            if (GameData.Maze[i, j].WallRight > 1) possibleWalls.Add("right");
+            if (GameData.Maze[i, j].WallBottom > 1) possibleWalls.Add("bottom");
+            if (GameData.Maze[i, j].WallLeft > 1) possibleWalls.Add("left");
+
+            if (possibleWalls.Count > 0)
+            {
+                string selectedWall = possibleWalls[UnityEngine.Random.Range(0, possibleWalls.Count)];
+
+                switch (selectedWall)
+                {
+                    case "top":
+                        GameData.Maze[i, j].WallTop = wallType;
+                        break;
+                    case "right":
+                        GameData.Maze[i, j].WallRight = wallType;
+                        break;
+                    case "bottom":
+                        GameData.Maze[i, j].WallBottom = wallType;
+                        break;
+                    case "left":
+                        GameData.Maze[i, j].WallLeft = wallType;
+                        break;
+                }
+                changed++;
+            }
+        }
+    }
+
     private void Create3DWalls()
     {
         // Get Prefabs for the walls
@@ -174,6 +215,23 @@ public class MazeController : MonoBehaviour
                 GameData.Maze[row, col].WallLeft = 0;
                 GameData.Maze[row, col - 1].WallRight = 0;
             }
+        }
+    }
+
+    private void GenerateCoinsOnRandomCells() 
+    {
+        //create the coins from a prefab
+        GameObject coinPrefab = Resources.Load<GameObject>("Prefabs/PirateCoin");
+
+        //define the number of coins spread in the maze as a percentage of the maze size
+        int numberOfCoins = (int)(GameData.MazeRows * GameData.MazeColumns * 0.1f);
+        for (int k = 0; k < numberOfCoins; k++) 
+        {
+            int randomRow = UnityEngine.Random.Range(0, GameData.MazeRows);
+            int randomCol = UnityEngine.Random.Range(0, GameData.MazeColumns);
+
+            GameObject coin = Instantiate(coinPrefab, new Vector3(randomCol * GameData.CellSize + GameData.HalfCellSize, 1f, randomRow * GameData.CellSize + GameData.HalfCellSize), Quaternion.identity);
+            coin.transform.Rotate(90, 0, 0);
         }
     }
 
