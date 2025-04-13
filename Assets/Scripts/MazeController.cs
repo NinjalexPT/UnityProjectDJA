@@ -1,17 +1,30 @@
-
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using Unity.AI.Navigation;
 using UnityEngine;
 
 public class MazeController : MonoBehaviour
 {
+  [SerializeField]
+  private List<GameObject> slotMachinePrefabsInScene = new List<GameObject>();
+
+  [SerializeField]
+  private float amountPerWidth = 0.33f;
+
+  [SerializeField]
+  private float MIN_DISTANCE_BETWEEN_SLOTS = 20f; // Minimo de distância entre slots
+
   void Start()
   {
     GenerateMaze();
     RemoveRandomWalls(100);
-    CreateOpenSpace();
+    CreateOpenSpace(); // Agora este método gera múltiplas áreas abertas com slots
     CreateWallsOfOtherTypes(30, 3);
     Create3DWalls();
     GenerateCoinsOnRandomCells();
+
+    slotMachinePrefabsInScene = FindObjectsByType<SlotMachineController>(FindObjectsSortMode.None).Select(slot => slot.gameObject).ToList();
   }
 
   private void GenerateMaze()
@@ -59,15 +72,30 @@ public class MazeController : MonoBehaviour
     }
     #endregion
 
-    #region Generate maze entrance and exit using a random number between 0 and GameData.MazeColumns:
-    GameData.EntrancePoint = UnityEngine.Random.Range(0, GameData.MazeColumns);
-    GameData.Maze[0, GameData.EntrancePoint].WallBottom = 0;
-    int exit = UnityEngine.Random.Range(0, GameData.MazeColumns);
-    GameData.Maze[GameData.MazeRows - 1, exit].WallTop = 0;
-    #endregion
+    // #region Generate maze entrance and exit using a random number between 0 and GameData.MazeColumns:
+    // GameData.EntrancePoint = UnityEngine.Random.Range(0, GameData.MazeColumns);
+    // GameData.Maze[0, GameData.EntrancePoint].WallBottom = 0;
+    // int exit = UnityEngine.Random.Range(0, GameData.MazeColumns);
+    // GameData.Maze[GameData.MazeRows - 1, exit].WallTop = 0;
+    // #endregion
 
     Debug.Log("Maze generated successfully!");
     PathFinder.ResolveMaze(); // Resolve the maze to ensure there is a path from the entrance to the exit
+
+    // Find the NavMeshSurface component in the scene
+    NavMeshSurface navMeshSurface = FindObjectOfType<NavMeshSurface>();
+
+    if (navMeshSurface != null)
+    {
+      // Build the NavMesh at runtime
+      navMeshSurface.BuildNavMesh();
+      Debug.Log("NavMesh baked after maze generation.");
+    }
+    else
+    {
+      Debug.LogError("NavMeshSurface not found in the scene. Make sure you've added it to a GameObject.");
+    }
+
   }
 
   private void RemoveRandomWalls(int wallsToRemove)
@@ -170,7 +198,7 @@ public class MazeController : MonoBehaviour
         if (GameData.Maze[i, j].WallTop > 0 && (i == 0 || i == GameData.MazeRows - 1))
         {
           GameObject prefab = (GameData.Maze[i, j].WallTop == 1) ? outerPrefab : wallPrefab;
-          GameObject wall = Instantiate(prefab, new Vector3(j * GameData.CellSize + GameData.HalfCellSize, 1.5f, i * GameData.CellSize + GameData.CellSize), Quaternion.identity, wallsParent.transform);
+          GameObject wall = Instantiate(prefab, new Vector3(j * GameData.CellSize + GameData.HalfCellSize, 1.3f, i * GameData.CellSize + GameData.CellSize), Quaternion.identity, wallsParent.transform);
           wall.transform.Rotate(0, 0, 0);
           if (GameData.Maze[i, j].WallTop == 1)
             wall.transform.localScale = new Vector3(GameData.CellSize + 0.2f, 10f, 0.2f);
@@ -178,7 +206,7 @@ public class MazeController : MonoBehaviour
         if (GameData.Maze[i, j].WallRight > 0)
         {
           GameObject prefab = (GameData.Maze[i, j].WallRight == 1) ? outerPrefab : wallPrefab;
-          GameObject wall = Instantiate(prefab, new Vector3(j * GameData.CellSize + GameData.CellSize, 1.5f, i * GameData.CellSize + GameData.HalfCellSize), Quaternion.identity, wallsParent.transform);
+          GameObject wall = Instantiate(prefab, new Vector3(j * GameData.CellSize + GameData.CellSize, 1.3f, i * GameData.CellSize + GameData.HalfCellSize), Quaternion.identity, wallsParent.transform);
           wall.transform.Rotate(0, 90, 0);
           if (GameData.Maze[i, j].WallRight == 1)
             wall.transform.localScale = new Vector3(GameData.CellSize + 0.2f, 10f, 0.2f);
@@ -186,7 +214,7 @@ public class MazeController : MonoBehaviour
         if (GameData.Maze[i, j].WallBottom > 0)
         {
           GameObject prefab = (GameData.Maze[i, j].WallBottom == 1) ? outerPrefab : wallPrefab;
-          GameObject wall = Instantiate(prefab, new Vector3(j * GameData.CellSize + GameData.HalfCellSize, 1.5f, i * GameData.CellSize), Quaternion.identity, wallsParent.transform);
+          GameObject wall = Instantiate(prefab, new Vector3(j * GameData.CellSize + GameData.HalfCellSize, 1.3f, i * GameData.CellSize), Quaternion.identity, wallsParent.transform);
           wall.transform.Rotate(0, 0, 0);
           if (GameData.Maze[i, j].WallBottom == 1)
             wall.transform.localScale = new Vector3(GameData.CellSize + 0.2f, 10f, 0.2f);
@@ -194,7 +222,7 @@ public class MazeController : MonoBehaviour
         if (GameData.Maze[i, j].WallLeft > 0 && j == 0)
         {
           GameObject prefab = (GameData.Maze[i, j].WallLeft == 1) ? outerPrefab : wallPrefab;
-          GameObject wall = Instantiate(prefab, new Vector3(j * GameData.CellSize, 1.5f, i * GameData.CellSize + GameData.HalfCellSize), Quaternion.identity, wallsParent.transform);
+          GameObject wall = Instantiate(prefab, new Vector3(j * GameData.CellSize, 1.3f, i * GameData.CellSize + GameData.HalfCellSize), Quaternion.identity, wallsParent.transform);
           wall.transform.Rotate(0, 90, 0);
           if (GameData.Maze[i, j].WallLeft == 1)
             wall.transform.localScale = new Vector3(GameData.CellSize + 0.2f, 10f, 0.2f);
@@ -206,21 +234,151 @@ public class MazeController : MonoBehaviour
 
   private void CreateOpenSpace()
   {
-    //Create an open space in the maze randomly with 3x3 size
-    int i = UnityEngine.Random.Range(1, GameData.MazeRows - 3);
-    int j = UnityEngine.Random.Range(1, GameData.MazeColumns - 3);
-    for (int row = i; row < i + 3; row++)
+    int numberOfOpenSpaces = Mathf.FloorToInt((float)GameData.MazeColumns * amountPerWidth);
+    Debug.Log($"Generating {numberOfOpenSpaces} open spaces.");
+
+    // Get existing slot machines
+    List<GameObject> existingSlotMachines = GameObject.FindObjectsByType<SlotMachineController>(FindObjectsSortMode.None).Select(sm => sm.gameObject).ToList();
+
+    for (int k = 0; k < numberOfOpenSpaces; k++)
     {
-      for (int col = j; col < j + 3; col++)
+      // Tenta gerar um espaço aberto e colocar uma slot até encontrar uma posição válida
+      bool spaceAndSlotCreated = false;
+      int attempts = 0;
+      while (!spaceAndSlotCreated && attempts < 20) // Aumentei as tentativas para dar mais chances com a verificação de distância
       {
-        GameData.Maze[row, col].WallTop = 0;
-        GameData.Maze[row - 1, col].WallBottom = 0;
-        GameData.Maze[row, col].WallRight = 0;
-        GameData.Maze[row, col + 1].WallLeft = 0;
-        GameData.Maze[row, col].WallBottom = 0;
-        GameData.Maze[row + 1, col].WallTop = 0;
-        GameData.Maze[row, col].WallLeft = 0;
-        GameData.Maze[row, col - 1].WallRight = 0;
+        int startRow = UnityEngine.Random.Range(1, GameData.MazeRows - 3);
+        int startCol = UnityEngine.Random.Range(1, GameData.MazeColumns - 3);
+
+        bool overlaps = false;
+        // Aqui você poderia adicionar lógica para verificar se este novo espaço se sobrepõe a espaços já criados.
+
+        if (!overlaps)
+        {
+          // Create the open space
+          for (int row = startRow; row < startRow + 3; row++)
+          {
+            for (int col = startCol; col < startCol + 3; col++)
+            {
+              GameData.Maze[row, col].WallTop = 0;
+              if (row > 0) GameData.Maze[row - 1, col].WallBottom = 0;
+              GameData.Maze[row, col].WallRight = 0;
+              if (col < GameData.MazeColumns - 1) GameData.Maze[row, col + 1].WallLeft = 0;
+              GameData.Maze[row, col].WallBottom = 0;
+              if (row < GameData.MazeRows - 1) GameData.Maze[row + 1, col].WallTop = 0;
+              GameData.Maze[row, col].WallLeft = 0;
+              if (col > 0) GameData.Maze[row, col - 1].WallRight = 0;
+            }
+          }
+
+          if (slotMachinePrefabsInScene.Count == 0)
+          {
+            Debug.LogWarning("No Slot Machine prefabs found in the scene, cannot instantiate one in the open space.");
+            return;
+          }
+
+          // Create a parent object for the slot machines if it doesn't exist
+          GameObject slotMachinesParent = GameObject.Find("SlotMachines");
+          if (slotMachinesParent == null)
+          {
+            slotMachinesParent = new GameObject("SlotMachines");
+            slotMachinesParent.transform.parent = transform;
+            slotMachinesParent.transform.localPosition = Vector3.zero;
+          }
+
+          // Calculate the position to instantiate the slot machine (center of the 3x3 area)
+          float centerX = (startCol + 1) * GameData.CellSize + GameData.HalfCellSize;
+          float centerZ = (startRow + 1) * GameData.CellSize + GameData.HalfCellSize;
+          Vector3 potentialSlotPosition = new Vector3(centerX, 1.3f, centerZ);
+
+          // Check if the new slot position is too close to existing slots
+          bool tooClose = false;
+          foreach (var existingSlot in existingSlotMachines)
+          {
+            if (Vector3.Distance(potentialSlotPosition, existingSlot.transform.position) < MIN_DISTANCE_BETWEEN_SLOTS)
+            {
+              tooClose = true;
+              break;
+            }
+          }
+
+          if (!tooClose)
+          {
+            // Logic to choose and instantiate a slot machine prefab
+            List<GameObject> availablePrefabs = new List<GameObject>(slotMachinePrefabsInScene);
+            GameObject selectedPrefab = null;
+            bool allPrefabsExist = true;
+
+            if (availablePrefabs.Count > 0)
+            {
+              for (int i = 0; i < availablePrefabs.Count; i++)
+              {
+                bool found = false;
+                foreach (var existingMachine in existingSlotMachines)
+                {
+                  if (existingMachine.name.StartsWith(availablePrefabs[i].name)) // Compare by name to identify prefab instances
+                  {
+                    found = true;
+                    break;
+                  }
+                }
+                if (!found)
+                {
+                  allPrefabsExist = false;
+                  break;
+                }
+              }
+
+              // Choose a random prefab
+              int randomIndex = Random.Range(0, availablePrefabs.Count);
+              selectedPrefab = availablePrefabs[randomIndex];
+
+              // If not all prefabs exist, try to find one that doesn't exist yet
+              if (!allPrefabsExist)
+              {
+                int attemptsInner = 0;
+                while (attemptsInner < availablePrefabs.Count * 2) // Try a few times to find a non-existing one
+                {
+                  randomIndex = Random.Range(0, availablePrefabs.Count);
+                  GameObject potentialPrefab = availablePrefabs[randomIndex];
+                  bool exists = false;
+                  foreach (var existingMachine in existingSlotMachines)
+                  {
+                    if (existingMachine.name.StartsWith(potentialPrefab.name))
+                    {
+                      exists = true;
+                      break;
+                    }
+                  }
+                  if (!exists)
+                  {
+                    selectedPrefab = potentialPrefab;
+                    break;
+                  }
+                  attemptsInner++;
+                }
+                // If after attempts, we still haven't found a non-existing one, we'll use the randomly selected one anyway
+              }
+
+              if (selectedPrefab != null)
+              {
+                GameObject slotMachine = Instantiate(selectedPrefab, potentialSlotPosition, Quaternion.identity, slotMachinesParent.transform);
+                slotMachine.transform.Rotate(90, 0, 0);
+                Debug.Log($"Created open space {k + 1} and instantiated a Slot Machine: {slotMachine.name} at {potentialSlotPosition}");
+                spaceAndSlotCreated = true;
+              }
+            }
+          }
+          else
+          {
+            Debug.Log($"Skipping slot creation for open space {k + 1} as it's too close to existing slots at {potentialSlotPosition}");
+          }
+        }
+        attempts++;
+      }
+      if (!spaceAndSlotCreated)
+      {
+        Debug.LogWarning($"Could not find a valid position to create open space {k + 1} and a slot machine after multiple attempts.");
       }
     }
   }
