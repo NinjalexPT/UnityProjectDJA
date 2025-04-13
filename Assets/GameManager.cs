@@ -47,6 +47,10 @@ public class GameManager : MonoBehaviour
     HideInteractText();
     coinObject.SetActive(false);
 
+    playerController.enableSprint = false;
+    playerController.enableCrouch = false;
+    playerController.enableJump = false;
+    playerController.enableZoom = false;
     playerController.playerCanMove = false;
     playerController.cameraCanMove = false;
   }
