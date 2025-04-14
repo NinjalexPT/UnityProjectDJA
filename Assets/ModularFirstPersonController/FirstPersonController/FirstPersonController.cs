@@ -204,6 +204,25 @@ public class FirstPersonController : MonoBehaviour
   {
     #region Camera
 
+    // Control sound
+
+    if (!GameManager.Instance.gameOver)
+    {
+      // When movement state changes
+      if (isSprinting)
+      {
+        SoundManager.Instance.PlayRunning();
+      }
+      else if (isWalking)
+      {
+        SoundManager.Instance.PlayWalking();
+      }
+      else
+      {
+        SoundManager.Instance.StopMovementSound();
+      }
+    }
+
     // Control camera movement
     if (cameraCanMove)
     {

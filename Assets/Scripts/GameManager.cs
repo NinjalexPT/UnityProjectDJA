@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -19,9 +20,13 @@ public class GameManager : MonoBehaviour
 
   [SerializeField]
   private GameObject deathScreen;
+  [SerializeField]
+  private GameObject playerUI;
 
   [SerializeField]
   private bool fog;
+
+  public bool gameOver;
 
   public void AddCoins(int amount)
   {
@@ -41,24 +46,26 @@ public class GameManager : MonoBehaviour
 
   public void PlayerDied()
   {
+
+    gameOver = true;
+
     FirstPersonController playerController = FindFirstObjectByType<FirstPersonController>();
     deathScreen.SetActive(true);
 
     HideInteractText();
     coinObject.SetActive(false);
 
-    playerController.enableSprint = false;
-    playerController.enableCrouch = false;
-    playerController.enableJump = false;
-    playerController.enableZoom = false;
-    playerController.playerCanMove = false;
-    playerController.cameraCanMove = false;
+    playerUI.SetActive(false);
+    Destroy(playerController);
+
+    SoundManager.Instance.StopMovementSound();
+
   }
 
-  /// <summary>
-  /// Start is called on the frame when a script is enabled just before
-  /// any of the Update methods is called the first time.
-  /// </summary>
+  public void RestartGame()
+  {
+    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+  }
   void Start()
   {
     if (Instance == null)

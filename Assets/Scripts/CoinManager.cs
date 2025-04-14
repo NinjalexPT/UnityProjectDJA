@@ -64,6 +64,7 @@ public class CoinManager : MonoBehaviour
       //Play sound effect
       if (coinSound != null && audioSource != null)
       {
+        audioSource.volume = 0.5f;
         audioSource.PlayOneShot(coinSound);
 
         // Disable MeshRenderer and Collider

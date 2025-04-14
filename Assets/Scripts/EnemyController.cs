@@ -22,6 +22,10 @@ public class EnemyController : MonoBehaviour
   private int frameCounter = 0;
   public LayerMask viewBlockerLayer; // Assign layers that can block the view (e.g., Walls) in the Inspector
 
+  [Header("Sound system")]
+  [SerializeField] private AudioSource audioSource;
+  [SerializeField] private float breathingSoundChance = 5f;
+
   /// <summary>
   /// Start is called on the frame when a script is enabled just before
   /// any of the Update methods is called the first time.
@@ -52,13 +56,22 @@ public class EnemyController : MonoBehaviour
   /// </summary>
   void Update()
   {
+
+    if (GameManager.Instance.gameOver) return;
+
     FirstPersonController playerController = FindFirstObjectByType<FirstPersonController>();
     float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
     // Temporary Debug Log
     // Debug.Log("Distance to Player: " + distanceToPlayer + ", Detection Threshold: " + detectionThreshold + ", Current State: " + currentState);
 
+    if ((Random.Range(1, 10000) <= breathingSoundChance) && distanceToPlayer > detectionThreshold)
+    {
+      SoundManager.Instance.PlayBreathingSound(audioSource);
+    }
+
     if (distanceToPlayer < deathThreshold)
     {
+      SoundManager.Instance.PlayJumpscareSound(audioSource);
       GameManager.Instance.PlayerDied();
       if (agent != null && agent.isActiveAndEnabled)
       {
