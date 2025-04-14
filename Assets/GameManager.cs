@@ -11,11 +11,48 @@ public class GameManager : MonoBehaviour
 
   [SerializeField]
   private TextMeshProUGUI coinCountText;
+  [SerializeField]
+  private GameObject coinObject;
+
+  [SerializeField]
+  private TextMeshProUGUI interactText;
+
+  [SerializeField]
+  private GameObject deathScreen;
+
+  [SerializeField]
+  private bool fog;
 
   public void AddCoins(int amount)
   {
     coinCount += amount;
-    coinCountText.text = "Coin count: " + coinCount;
+    coinCountText.text = "" + coinCount;
+  }
+
+  public void ShowInteractText()
+  {
+    interactText.rectTransform.anchoredPosition = new Vector3(100f, -20f, 0f);
+  }
+
+  public void HideInteractText()
+  {
+    interactText.rectTransform.anchoredPosition = new Vector3(100f, 60f, 0f);
+  }
+
+  public void PlayerDied()
+  {
+    FirstPersonController playerController = FindFirstObjectByType<FirstPersonController>();
+    deathScreen.SetActive(true);
+
+    HideInteractText();
+    coinObject.SetActive(false);
+
+    playerController.enableSprint = false;
+    playerController.enableCrouch = false;
+    playerController.enableJump = false;
+    playerController.enableZoom = false;
+    playerController.playerCanMove = false;
+    playerController.cameraCanMove = false;
   }
 
   /// <summary>
@@ -32,5 +69,8 @@ public class GameManager : MonoBehaviour
     {
       Destroy(this);
     }
+
+    RenderSettings.fog = fog;
   }
+
 }
