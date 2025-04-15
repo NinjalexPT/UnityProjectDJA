@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -34,8 +35,14 @@ public class GameManager : MonoBehaviour
     coinCountText.text = "" + coinCount;
   }
 
-  public void ShowInteractText()
+  public int CoinCount()
   {
+    return this.coinCount;
+  }
+
+  public void ShowInteractText(String text)
+  {
+    interactText.text = text;
     interactText.rectTransform.anchoredPosition = new Vector3(100f, -20f, 0f);
   }
 

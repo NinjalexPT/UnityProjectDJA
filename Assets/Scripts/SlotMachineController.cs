@@ -4,12 +4,20 @@ public class SlotMachineController : MonoBehaviour
 {
   private bool playerInside = false;
 
+  [SerializeField]
+  private PrototypeMachine prototype;
+
   void OnTriggerEnter(Collider other)
   {
     if (other.tag == "Player")
     {
-      playerInside = true;
-      GameManager.Instance.ShowInteractText();
+      if (GameManager.Instance.CoinCount() >= 25)
+      {
+        GameManager.Instance.ShowInteractText("Press E to play (25 coins)");
+        playerInside = true;
+      }
+      else
+        GameManager.Instance.ShowInteractText("You need at least 25 coins to play.");
     }
   }
 
@@ -22,14 +30,18 @@ public class SlotMachineController : MonoBehaviour
     }
   }
 
+  void Start()
+  {
+    prototype = this.GetComponent<PrototypeMachine>();
+  }
+
   void Update()
   {
     if (playerInside && Input.GetKeyDown(KeyCode.E))
     {
       Debug.Log("interagiu");
 
-      // idrk o que querem fazer mas quanod o jogar esta perto e clica no E esta função é chamada.
-      // do wahtever you like
+      prototype.PullLever();
     }
   }
 }
