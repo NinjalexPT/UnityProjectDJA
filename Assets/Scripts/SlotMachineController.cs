@@ -40,7 +40,7 @@ public class SlotMachineController : MonoBehaviour
     if (playerInside && Input.GetKeyDown(KeyCode.E))
     {
       Debug.Log("interagiu");
-
+      GameManager.Instance.AddCoins(-25);
       prototype.PullLever();
     }
   }

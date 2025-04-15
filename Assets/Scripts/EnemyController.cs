@@ -6,172 +6,233 @@ public class EnemyController : MonoBehaviour
   public enum EnemyState
   {
     Walking,
+    Investigating,
     Chasing
   }
 
-  [SerializeField]
-  private NavMeshAgent agent;
-  public EnemyState currentState = EnemyState.Walking;
-  public float walkingSpeed = 3f;
-  public float chasingSpeedMultiplier = 2f;
-  public float detectionThreshold = 30f;
-  public float deathThreshold = 1f;
-  private Transform playerTransform;
-  private Vector3 walkTarget;
-  public float walkRadius = 50f; // Adjust this based on your map size
-  private int frameCounter = 0;
-  public LayerMask viewBlockerLayer; // Assign layers that can block the view (e.g., Walls) in the Inspector
+  [Header("Navigation Settings")]
+  [SerializeField] private NavMeshAgent agent;
+  [SerializeField] private float walkingSpeed = 3f;
+  [SerializeField] private float chasingSpeed = 6f;
+  [SerializeField] private float detectionRadius = 30f;
+  [SerializeField] private float deathDistance = 1f;
+  [SerializeField] private LayerMask obstacleLayers;
 
-  [Header("Sound system")]
+  [Header("Behavior Tuning")]
+  [SerializeField] private float maxInvestigationTime = 10f;
+  [SerializeField] private float sightCheckInterval = 0.2f;
+  [SerializeField] private float walkRadius = 20f;
+  [SerializeField] private float pathUpdateDelay = 2f; // Novo parâmetro
+
+  [Header("Sound System")]
   [SerializeField] private AudioSource audioSource;
   [SerializeField] private float breathingSoundChance = 5f;
 
-  /// <summary>
-  /// Start is called on the frame when a script is enabled just before
-  /// any of the Update methods is called the first time.
-  /// </summary>
+  private Transform player;
+  public EnemyState currentState;
+  private Vector3 investigationTarget;
+  private float investigationTimer;
+  private float sightCheckTimer;
+  private float soundCheckTimer;
+  private Vector3 currentWalkTarget;
+  private float lastPathUpdateTime; // Controle de tempo
+
   void Start()
   {
-    agent = GetComponent<NavMeshAgent>();
-    if (agent == null)
-    {
-      Debug.LogError("NavMeshAgent not found on this GameObject.");
-      enabled = false;
-      return;
-    }
-
-    playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
-    if (playerTransform == null)
-    {
-      Debug.LogError("Player not found. Make sure the Player GameObject has the tag 'Player'.");
-      enabled = false;
-      return;
-    }
-
-    SetState(EnemyState.Walking);
+    player = GameObject.FindGameObjectWithTag("Player").transform;
+    currentState = EnemyState.Walking;
+    agent.speed = walkingSpeed;
+    agent.autoBraking = true; // Garantir que freia ao chegar perto
+    agent.stoppingDistance = 1f; // Distância de parada
+    SetNewWalkTarget();
   }
 
-  /// <summary>
-  /// Update is called every frame, if the MonoBehaviour is enabled.
-  /// </summary>
   void Update()
   {
-
     if (GameManager.Instance.gameOver) return;
 
-    FirstPersonController playerController = FindFirstObjectByType<FirstPersonController>();
-    float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
-    // Temporary Debug Log
-    // Debug.Log("Distance to Player: " + distanceToPlayer + ", Detection Threshold: " + detectionThreshold + ", Current State: " + currentState);
+    float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-    if ((Random.Range(1, 10000) <= breathingSoundChance) && distanceToPlayer > detectionThreshold)
-    {
-      SoundManager.Instance.PlayBreathingSound(audioSource);
-    }
+    HandleDeathCondition(distanceToPlayer);
+    UpdateStateMachine(distanceToPlayer);
+    HandleBreathingSounds(distanceToPlayer);
+  }
 
-    if (distanceToPlayer < deathThreshold)
+  void HandleBreathingSounds(float distance)
+  {
+    if (currentState == EnemyState.Walking && distance > detectionRadius)
     {
-      SoundManager.Instance.PlayJumpscareSound(audioSource);
-      GameManager.Instance.PlayerDied();
-      if (agent != null && agent.isActiveAndEnabled)
+      soundCheckTimer += Time.deltaTime;
+      if (soundCheckTimer > 1f)
       {
-        agent.isStopped = true;
-        agent.velocity = Vector3.zero;
+        soundCheckTimer = 0;
+        if (Random.Range(0, 100) < breathingSoundChance)
+        {
+          SoundManager.Instance.PlayBreathingSound(audioSource);
+        }
       }
-      return;
     }
+  }
 
+  void UpdateStateMachine(float distanceToPlayer)
+  {
     switch (currentState)
     {
       case EnemyState.Walking:
-        playerController.unlimitedSprint = false;
-        agent.speed = walkingSpeed;
-        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
-        {
-          SetNewRandomWalkTarget();
-        }
+        HandleWalkingState(distanceToPlayer);
+        break;
 
-        if (distanceToPlayer < detectionThreshold)
-        {
-          // Perform line of sight check every 5 frames
-          frameCounter++;
-          if (frameCounter % 5 == 0)
-          {
-            if (HasLineOfSightToPlayer())
-            {
-              SetState(EnemyState.Chasing);
-            }
-          }
-        }
+      case EnemyState.Investigating:
+        HandleInvestigationState(distanceToPlayer);
         break;
 
       case EnemyState.Chasing:
-
-        playerController.unlimitedSprint = true;
-        agent.speed = walkingSpeed * chasingSpeedMultiplier;
-        agent.SetDestination(playerTransform.position);
-
-        if (distanceToPlayer > detectionThreshold || !HasLineOfSightToPlayer())
-        {
-          SetState(EnemyState.Walking);
-        }
+        HandleChaseState(distanceToPlayer);
         break;
     }
   }
 
-  void SetState(EnemyState newState)
+  void HandleWalkingState(float distanceToPlayer)
   {
-    if (currentState == newState) return;
-
-    currentState = newState;
-    frameCounter = 0; // Reset frame counter when state changes
-
-    if (currentState == EnemyState.Walking)
+    // Atualizado para priorizar verificação de visão
+    if (distanceToPlayer <= detectionRadius)
     {
-      SetNewRandomWalkTarget();
+      if (HasClearLineOfSight())
+      {
+        StartChasing();
+        return; // Sai imediatamente após iniciar perseguição
+      }
+      else if (distanceToPlayer < detectionRadius * 0.5f) // Se estiver muito perto
+      {
+        StartInvestigating(player.position);
+      }
     }
-    else if (currentState == EnemyState.Chasing)
+
+    // Mantém a lógica de caminhada somente se não estiver perseguindo
+    if (agent.pathStatus == NavMeshPathStatus.PathComplete &&
+        agent.remainingDistance <= agent.stoppingDistance &&
+        Time.time - lastPathUpdateTime > pathUpdateDelay)
     {
-      Debug.Log("Enemy is now Chasing!");
+      SetNewWalkTarget();
+      lastPathUpdateTime = Time.time;
     }
   }
 
-  void SetNewRandomWalkTarget()
+  void HandleInvestigationState(float distanceToPlayer)
+  {
+    investigationTimer -= Time.deltaTime;
+
+    // Verificação prioritária de linha de visada
+    if (HasClearLineOfSight())
+    {
+      StartChasing();
+      return;
+    }
+
+    // Atualização mais inteligente do destino
+    if (distanceToPlayer < Vector3.Distance(transform.position, investigationTarget) * 0.8f)
+    {
+      investigationTarget = player.position;
+      agent.SetDestination(investigationTarget);
+    }
+
+    // Condição de saída melhorada
+    if (agent.remainingDistance <= agent.stoppingDistance || investigationTimer <= 0 || distanceToPlayer > detectionRadius)
+    {
+      ReturnToWalking();
+    }
+  }
+
+  void HandleChaseState(float distanceToPlayer)
+  {
+    agent.SetDestination(player.position);
+
+    if (distanceToPlayer > detectionRadius)
+    {
+      ReturnToWalking();
+    }
+  }
+
+  bool HasClearLineOfSight()
+  {
+    sightCheckTimer += Time.deltaTime;
+    if (sightCheckTimer < sightCheckInterval) return false;
+    sightCheckTimer = 0;
+
+    Vector3 direction = player.position - transform.position;
+    float distance = Vector3.Distance(transform.position, player.position);
+
+    // Ajuste crucial: usar ~obstacleLayers para ignorar camadas bloqueadoras
+    if (!Physics.Raycast(transform.position, direction.normalized, out RaycastHit hit, distance, obstacleLayers))
+    {
+      return true;
+    }
+
+    // Debug visual
+    Debug.DrawRay(transform.position, direction, Color.red, 0.5f);
+    return hit.collider.CompareTag("Player");
+  }
+
+  void StartChasing()
+  {
+    currentState = EnemyState.Chasing;
+    agent.speed = chasingSpeed;
+    agent.SetDestination(player.position);
+  }
+
+  void StartInvestigating(Vector3 position)
+  {
+    currentState = EnemyState.Investigating;
+    investigationTarget = position;
+    agent.SetDestination(position);
+    investigationTimer = maxInvestigationTime;
+  }
+
+  void ReturnToWalking()
+  {
+    currentState = EnemyState.Walking;
+    agent.speed = walkingSpeed;
+    SetNewWalkTarget();
+  }
+
+  void SetNewWalkTarget()
   {
     Vector3 randomDirection = Random.insideUnitSphere * walkRadius;
-    randomDirection += transform.position;
-    NavMeshHit hit;
-    if (NavMesh.SamplePosition(randomDirection, out hit, walkRadius, NavMesh.AllAreas))
+    randomDirection += player.position;
+    randomDirection.y = player.position.y;
+
+    int attempts = 0;
+    bool validPath = false;
+
+    // Tenta até 5 vezes encontrar um caminho válido
+    while (attempts < 5 && !validPath)
     {
-      walkTarget = hit.position;
-      agent.SetDestination(walkTarget);
+      if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, walkRadius, NavMesh.AllAreas))
+      {
+        currentWalkTarget = hit.position;
+        agent.SetDestination(currentWalkTarget);
+
+        // Espera o cálculo do caminho
+        if (agent.pathPending) return;
+
+        validPath = agent.pathStatus == NavMeshPathStatus.PathComplete;
+      }
+      attempts++;
     }
-    else
+
+    if (!validPath)
     {
-      Debug.LogWarning("Could not find a valid random walk target on the NavMesh. Trying again...");
+      Debug.LogWarning("Falha ao encontrar caminho válido");
     }
   }
 
-  bool HasLineOfSightToPlayer()
+  void HandleDeathCondition(float distance)
   {
-    Vector3 directionToPlayer = playerTransform.position - transform.position;
-    Ray ray = new Ray(transform.position, directionToPlayer.normalized);
-    RaycastHit hit;
-
-    // Perform the raycast, ignoring the enemy's own collider
-    if (Physics.Raycast(ray, out hit, detectionThreshold, ~LayerMask.GetMask(LayerMask.LayerToName(gameObject.layer))))
+    if (distance < deathDistance)
     {
-      // Check if the raycast hit the player
-      if (hit.collider.CompareTag("Player"))
-      {
-        return true;
-      }
-      // Check if the raycast hit a view blocker (e.g., a wall)
-      if (viewBlockerLayer != 0 && (viewBlockerLayer & (1 << hit.collider.gameObject.layer)) != 0)
-      {
-        return false; // Blocked by a view blocker
-      }
+      SoundManager.Instance.PlayJumpscareSound(audioSource);
+      GameManager.Instance.PlayerDied();
+      agent.isStopped = true;
     }
-    return false; // Player not hit or out of range
   }
 }
