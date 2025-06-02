@@ -73,9 +73,9 @@ public class GameManager : MonoBehaviour
 
   public void RestartGame()
   {
+
     SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    Cursor.visible = false; // Makes the cursor invisible
-    Cursor.lockState = CursorLockMode.Locked; // locks the cursor
+
     }
   void Start()
   {
