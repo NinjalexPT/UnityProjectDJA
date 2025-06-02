@@ -20,7 +20,7 @@ public class RouletteTable : MachineController
 
    public override void Update()
    {
-      if (playerInside && Input.GetKeyDown(KeyCode.E))
+      if (PlayerInside && Input.GetKeyDown(KeyCode.E))
       {
          OnUseMachine();
       }
