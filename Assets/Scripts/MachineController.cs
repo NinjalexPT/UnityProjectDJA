@@ -18,6 +18,7 @@ public class MachineController : MonoBehaviour
    private float initialRotationZ;
 
    public float MachineHeight => machineHeight;
+   public bool PlayerInside => playerInside;
    public Vector3 InitialRotation =>
        new Vector3(initialRotationX, initialRotationY, initialRotationZ);
 
@@ -52,7 +53,7 @@ public class MachineController : MonoBehaviour
       initialRotationZ = transform.localRotation.eulerAngles.z;
    }
 
-   void Update()
+   public virtual void Update()
    {
       if (playerInside && Input.GetKeyDown(KeyCode.E))
       {
