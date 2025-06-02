@@ -5,17 +5,6 @@ using System.Collections.Generic;
 
 public class SceneLoader : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     public void LoadMenuScene()
     {
@@ -30,6 +19,11 @@ public class SceneLoader : MonoBehaviour
     public void ReloadScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void AppExit()
+    {
+        Application.Quit();
     }
     
     IEnumerable Transitioning()

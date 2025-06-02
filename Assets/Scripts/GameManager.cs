@@ -58,8 +58,10 @@ public class GameManager : MonoBehaviour
 
     FirstPersonController playerController = FindFirstObjectByType<FirstPersonController>();
     deathScreen.SetActive(true);
+    Cursor.visible = true; // Makes the cursor visible
+    Cursor.lockState = CursorLockMode.None; // Unlocks the cursor
 
-    HideInteractText();
+        HideInteractText();
     coinObject.SetActive(false);
 
     playerUI.SetActive(false);
@@ -72,7 +74,9 @@ public class GameManager : MonoBehaviour
   public void RestartGame()
   {
     SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-  }
+    Cursor.visible = false; // Makes the cursor invisible
+    Cursor.lockState = CursorLockMode.Locked; // locks the cursor
+    }
   void Start()
   {
     if (Instance == null)

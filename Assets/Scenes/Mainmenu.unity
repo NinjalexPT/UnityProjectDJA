@@ -176,7 +176,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: dbee34e241b38fb4baca8623903f73b7, type: 3}
+  m_Texture: {fileID: 2800000, guid: 085adc2f94dc5fb4d99a681f8631e4fe, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -218,15 +218,15 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4770550}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -555}
-  m_LocalScale: {x: 20.21254, y: 11.048, z: 11.048}
+  m_LocalPosition: {x: 0, y: 0, z: -40}
+  m_LocalScale: {x: 22.355068, y: 12.219088, z: 12.219088}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1118524846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2243, y: 0}
+  m_AnchoredPosition: {x: 45, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4770552
@@ -829,7 +829,7 @@ GameObject:
   - component: {fileID: 1083010368}
   - component: {fileID: 1083010367}
   m_Layer: 5
-  m_Name: Newgame (2)
+  m_Name: exitButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -898,7 +898,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1083010368}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1118524847}
+        m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
+        m_MethodName: AppExit
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1083010368
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -950,7 +962,7 @@ GameObject:
   - component: {fileID: 1106713973}
   - component: {fileID: 1106713972}
   m_Layer: 5
-  m_Name: Newgame (1)
+  m_Name: OptionsButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
