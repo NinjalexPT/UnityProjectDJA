@@ -25,6 +25,9 @@ public class SlotMachine : MachineController
 
    public override void OnUseMachine()
    {
+      if (!canDiscountCoins) return;
+      GameManager.Instance.AddCoins(-RequiredCoins);
+      MachineController.canDiscountCoins = false;
       PullLever();
    }
 
@@ -65,5 +68,6 @@ public class SlotMachine : MachineController
             mainCylinders[i].transform.localRotation = initialRotations[i];
          }
       }
+      MachineController.canDiscountCoins = true;
    }
 }

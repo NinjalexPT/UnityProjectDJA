@@ -6,7 +6,7 @@ public class MachineController : MonoBehaviour
 
    [SerializeField]
    private int requiredCoins = 25;
-
+   public static bool canDiscountCoins = true;
    [SerializeField]
    private float machineHeight;
 
@@ -18,11 +18,12 @@ public class MachineController : MonoBehaviour
    private float initialRotationZ;
 
    public float MachineHeight => machineHeight;
+   public int RequiredCoins => requiredCoins;
    public bool PlayerInside => playerInside;
    public Vector3 InitialRotation =>
        new Vector3(initialRotationX, initialRotationY, initialRotationZ);
 
-   void OnTriggerEnter(Collider other)
+   public virtual void OnTriggerEnter(Collider other)
    {
       if (other.tag == "Player")
       {
@@ -36,7 +37,7 @@ public class MachineController : MonoBehaviour
       }
    }
 
-   void OnTriggerExit(Collider other)
+   public virtual void OnTriggerExit(Collider other)
    {
       if (other.tag == "Player")
       {
@@ -62,6 +63,8 @@ public class MachineController : MonoBehaviour
    }
    public virtual void OnUseMachine()
    {
+      if (MachineController.canDiscountCoins == false)
+         return;
       GameManager.Instance.AddCoins(-requiredCoins);
    }
 }

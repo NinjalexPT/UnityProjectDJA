@@ -1,73 +1,127 @@
-using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class RouletteTable : MachineController
 {
-   [Header("Main parts of the machine")]
-   [SerializeField]
-   private GameObject rouletteWheel;
-
+   [SerializeField] private GameObject rouletteWheel;
    [SerializeField] private float spinDuration = 3f;
    [SerializeField] private float spinSpeed = 720f;
 
-   private Quaternion initialRotation;
+   private Quaternion originalRotation;
+   private bool showingChooseColor;
+   private bool hasChargedCoins;
 
    void Start()
    {
-      initialRotation = rouletteWheel.transform.localRotation;
+      // guarda a rotação “de repouso” da roda
+      originalRotation = rouletteWheel.transform.localRotation;
    }
 
    public override void Update()
    {
-      if (playerInside && Input.GetKeyDown(KeyCode.E))
+      // 1) só permitimos entrar em OnUseMachine (e descontar moedas)
+      //    enquanto não estivermos em “choose color”
+      if (!showingChooseColor)
+         base.Update();
+
+      // 2) se já estivermos em “choose color”, mostramos o prompt
+      if (showingChooseColor)
       {
-         OnUseMachine();
+         GameManager.Instance.ShowInteractText(
+           "Choose a color: R = Red, G = Green, B = Black");
+
+         if (Input.GetKeyDown(KeyCode.R)) ChooseColor(0);
+         if (Input.GetKeyDown(KeyCode.G)) ChooseColor(1);
+         if (Input.GetKeyDown(KeyCode.B)) ChooseColor(2);
       }
    }
 
+   // quando o jogador carrega em E
    public override void OnUseMachine()
    {
-      SpinWheel();
+      // impede duplo desconto
+      if (showingChooseColor || hasChargedCoins) return;
+
+      showingChooseColor = true;
+
+      MachineController.canDiscountCoins = false;
+
+      GameManager.Instance.AddCoins(-RequiredCoins);
+
+      // imediatamente substitui o texto de “Press E” por “Choose a color”
+      GameManager.Instance.ShowInteractText(
+        "Choose a color: R = Red, G = Green, B = Black");
    }
 
-   public void SpinWheel()
+   private void ChooseColor(int color)
    {
-      print("Spinning the roulette wheel");
-      StartCoroutine(SpinAnimation());
+      // ao escolher cor:
+      //  a) escondemos o texto
+      //  b) saímos do modo escolher cor
+      //  c) começamos o spin
+      GameManager.Instance.HideInteractText();
+      showingChooseColor = false;
+      StartSpin(color);
    }
 
-   IEnumerator SpinAnimation()
+   public void StartSpin(int color)
    {
+      StartCoroutine(SpinAnimation(color));
+   }
+
+   private IEnumerator SpinAnimation(int color)
+   {
+      // parte de animação livre
       float timer = 0f;
-
       while (timer < spinDuration)
       {
-
          rouletteWheel.transform.Rotate(0, 0, spinSpeed * Time.deltaTime);
-
          timer += Time.deltaTime;
          yield return null;
       }
 
-      int PowerUpTypeIndex = UnityEngine.Random.Range(0, Enum.GetValues(typeof(PowerUpType)).Length);
+      // decide finalZ com floats (nunca 360/37 inteiro)
+      bool success = Random.value > 0.25f;
+      float finalZ = 0f;
 
-      bool isSuccess = UnityEngine.Random.Range(0f, 1f) > 0.25f;
-
-      print("Spin result: " + (isSuccess ? "Success" : "Failure"));
-
-      if (isSuccess)
+      if (success)
       {
-         // Set the wheel to the success position
-         initialRotation = Quaternion.Euler(initialRotation.eulerAngles.x, initialRotation.eulerAngles.y, initialRotation.eulerAngles.z + 360 / 36 * PowerUpTypeIndex);
-         rouletteWheel.transform.localRotation = initialRotation;
+         switch (color)
+         {
+            case 0: finalZ = 0f; break;
+            case 1: finalZ = (360f / 37f) * 28f; break;
+            case 2: finalZ = (360f / 37f) * 1f; break;
+         }
       }
       else
       {
-         // Set the wheel to a random failure position
-         initialRotation = Quaternion.Euler(initialRotation.eulerAngles.x, initialRotation.eulerAngles.y, (float)(initialRotation.eulerAngles.z - (360 / 12) + 360 / 12 * Math.Floor(UnityEngine.Random.Range(0.0f, 12.0f) * 2)));
-         rouletteWheel.transform.localRotation = initialRotation;
+         int randomBin = Random.Range(0, 12);
+         finalZ = (360f / 12f) * randomBin;
       }
+
+      // aplica ROTATION ABSOLUTA sobre a rotação original
+      rouletteWheel.transform.localRotation =
+        Quaternion.Euler(
+          originalRotation.eulerAngles.x,
+          originalRotation.eulerAngles.y,
+          finalZ
+        );
+
+      // 3) spin acabou, voltamos a mostrar “Press E to play…”
+      //    e limpamos flags para permitir novo jogo
+      hasChargedCoins = false;
+      GameManager.Instance.ShowInteractText(
+        $"Press E to play ({RequiredCoins} coins)");
+
+      MachineController.canDiscountCoins = true;
    }
 
+   // se o jogador sair do “gatilho”, escondemos texto e resetamos
+   public override void OnTriggerExit(Collider other)
+   {
+      base.OnTriggerExit(other);
+      showingChooseColor = false;
+      hasChargedCoins = false;
+   }
 }
