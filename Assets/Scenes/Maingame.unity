@@ -2173,8 +2173,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slotMachinePrefabsInScene:
   - {fileID: 0}
-  amountPerWidth: 0.33
-  MIN_DISTANCE_BETWEEN_SLOTS: 40
+  amountPerWidth: 0.5
+  MIN_DISTANCE_BETWEEN_SLOTS: 20
 --- !u!4 &882628161 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4459864850019384738, guid: 6bacecc4f3df9584198879c73a6b6c36, type: 3}
