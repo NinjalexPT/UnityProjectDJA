@@ -8,6 +8,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -18,9 +20,16 @@ public class FirstPersonController : MonoBehaviour
 {
   private Rigidbody rb;
 
-  #region Camera Movement Variables
+    [Header("Referência do Pai e Nome do Filho")]
+    public GameObject ParentOBJ;
+    public string SonOBJName;
 
-  public Camera playerCamera;
+    private GameObject SonToToggle;
+    private InputAction escAction;
+
+    #region Camera Movement Variables
+
+    public Camera playerCamera;
 
   public float fov = 60f;
   public bool invertCamera = false;
@@ -147,9 +156,62 @@ public class FirstPersonController : MonoBehaviour
       sprintRemaining = sprintDuration;
       sprintCooldownReset = sprintCooldown;
     }
-  }
 
-  void Start()
+        if (ParentOBJ == null || string.IsNullOrEmpty(SonOBJName))
+        {
+            Debug.LogError("Parâmetros inválidos no inspector.");
+            return;
+        }
+
+        // Procura o filho com o nome especificado
+        Transform SonTransform = ParentOBJ.transform.Find(SonOBJName);
+        if (SonTransform != null)
+        {
+            SonToToggle = SonTransform.gameObject;
+        }
+        else
+        {
+            Debug.LogError($"Filho '{SonOBJName}' não encontrado dentro de '{ParentOBJ.name}'");
+        }
+
+        // Cria a ação de input para a tecla ESC
+        escAction = new InputAction(binding: "<Keyboard>/escape");
+        escAction.performed += OnEscInput;
+
+    }
+
+    void OnEnable()
+    {
+        escAction.Enable();
+    }
+
+    void OnDisable()
+    {
+        escAction.Disable();
+    }
+
+    private void OnEscInput(InputAction.CallbackContext context)
+    {
+        if (SonToToggle != null)
+        {
+            // Toggle: alterna entre ativo e inativo
+            bool novoEstado = !SonToToggle.activeSelf;
+            if (novoEstado)
+            {
+                Cursor.visible = true; // Makes the cursor visible
+                Cursor.lockState = CursorLockMode.None; // Unlocks the cursor
+            }
+            else
+            {
+                Cursor.visible = false; // Makes the cursor invisible
+                Cursor.lockState = CursorLockMode.Locked; // locks the cursor
+            }
+            SonToToggle.SetActive(novoEstado);
+            
+        }
+    }
+
+    void Start()
   {
     if (lockCursor)
     {
@@ -197,6 +259,12 @@ public class FirstPersonController : MonoBehaviour
 
     #endregion
   }
+
+
+
+
+
+
 
   float camRotation;
 
@@ -745,10 +813,36 @@ public class FirstPersonControllerEditor : Editor
     fpc.bobAmount = EditorGUILayout.Vector3Field(new GUIContent("Bob Amount", "Determines the amount the joint moves in both directions on every axes."), fpc.bobAmount);
     GUI.enabled = true;
 
-    #endregion
+        #endregion
+        //ALTERADO PARA PODER ESCOLHER O MENU
+        EditorGUILayout.Space();
 
-    //Sets any changes from the prefab
-    if (GUI.changed)
+        EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+        GUILayout.Label("Filho a Ser Ativado via ESC", new GUIStyle(GUI.skin.label)
+        {
+            alignment = TextAnchor.MiddleCenter,
+            fontStyle = FontStyle.Bold,
+            fontSize = 13
+        }, GUILayout.ExpandWidth(true));
+        EditorGUILayout.Space();
+
+        // Campo para o Objeto Pai
+        fpc.ParentOBJ = (GameObject)EditorGUILayout.ObjectField(
+            new GUIContent("Objeto Pai", "GameObject que contém o filho a ser ativado/desativado"),
+            fpc.ParentOBJ,
+            typeof(GameObject),
+            true
+        );
+
+        // Campo para o nome do filho
+        fpc.SonOBJName = EditorGUILayout.TextField(
+            new GUIContent("Nome do Filho", "Nome do filho dentro do objeto pai que será ativado/desativado"),
+            fpc.SonOBJName
+        );
+        //ACABA AQUI O ALTERADO
+
+        //Sets any changes from the prefab
+        if (GUI.changed)
     {
       EditorUtility.SetDirty(fpc);
       Undo.RecordObject(fpc, "FPC Change");
