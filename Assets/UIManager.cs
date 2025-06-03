@@ -12,6 +12,8 @@ public class UIManager : MonoBehaviour
    [SerializeField] private GameObject playerUI;
    [SerializeField] private GameObject pauseScreen;
 
+   public static bool isPauseScreenActive;
+
    void Awake()
    {
       if (Instance == null)
@@ -38,6 +40,7 @@ public class UIManager : MonoBehaviour
             ShowPauseScreen();
          }
       }
+      isPauseScreenActive = pauseScreen.activeSelf;
    }
 
    public void ShowPauseScreen()
@@ -45,12 +48,31 @@ public class UIManager : MonoBehaviour
       FindFirstObjectByType<FirstPersonController>().cameraCanMove = false;
       pauseScreen.SetActive(true);
       Time.timeScale = 0f;
+
+      Cursor.lockState = CursorLockMode.None;
+      Cursor.visible = true;
+
+      SoundManager.Instance.PauseAllSound();
    }
    public void HidePauseScreen()
    {
       FindFirstObjectByType<FirstPersonController>().cameraCanMove = true;
       Time.timeScale = 1f;
       pauseScreen.SetActive(false);
+
+      Cursor.lockState = CursorLockMode.Locked;
+      Cursor.visible = false;
+      SoundManager.Instance.ResumeAllSounds();
+   }
+
+   public void IntoMenu()
+   {
+      HidePauseScreen();
+
+      Cursor.lockState = CursorLockMode.None;
+      Cursor.visible = true;
+
+      FindFirstObjectByType<SceneLoader>().IntoMenu();
    }
 
    public void UpdateCoinCount(int count)

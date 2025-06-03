@@ -3,243 +3,245 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
-    public enum EnemyState
-    {
-        Walking,
-        Investigating,
-        Chasing
-    }
+   public enum EnemyState
+   {
+      Walking,
+      Investigating,
+      Chasing
+   }
 
-    [Header("Navigation Settings")]
-    [SerializeField] private NavMeshAgent agent;
-    [SerializeField] private float walkingSpeed = 3f;
-    [SerializeField] private float chasingSpeed = 6f;
-    [SerializeField] private float detectionRadius = 30f;
-    [SerializeField] private float deathDistance = 1f;
-    [SerializeField] private LayerMask obstacleLayers;
+   [Header("Navigation Settings")]
+   [SerializeField] private NavMeshAgent agent;
+   [SerializeField] private float walkingSpeed = 3f;
+   [SerializeField] private float chasingSpeed = 6f;
+   [SerializeField] private float detectionRadius = 30f;
+   [SerializeField] private float deathDistance = 1f;
+   [SerializeField] private LayerMask obstacleLayers;
 
-    [Header("Behavior Tuning")]
-    [SerializeField] private float maxInvestigationTime = 10f;
-    [SerializeField] private float sightCheckInterval = 0.2f;
-    [SerializeField] private float walkRadius = 20f;
-    [SerializeField] private float pathUpdateDelay = 2f; // Novo parâmetro
+   [Header("Behavior Tuning")]
+   [SerializeField] private float maxInvestigationTime = 10f;
+   [SerializeField] private float sightCheckInterval = 0.2f;
+   [SerializeField] private float walkRadius = 20f;
+   [SerializeField] private float pathUpdateDelay = 2f; // Novo parâmetro
 
-    [Header("Sound System")]
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private float breathingSoundChance = 5f;
+   [Header("Sound System")]
+   [SerializeField] private AudioSource audioSource;
+   [SerializeField] private float breathingSoundChance = 5f;
 
-    private Transform player;
-    public EnemyState currentState;
-    private Vector3 investigationTarget;
-    private float investigationTimer;
-    private float sightCheckTimer;
-    private float soundCheckTimer;
-    private Vector3 currentWalkTarget;
-    private float lastPathUpdateTime; // Controle de tempo
+   private Transform player;
+   public EnemyState currentState;
+   private Vector3 investigationTarget;
+   private float investigationTimer;
+   private float sightCheckTimer;
+   private float soundCheckTimer;
+   private Vector3 currentWalkTarget;
+   private float lastPathUpdateTime; // Controle de tempo
 
-    private Animator animator;
+   private Animator animator;
 
-    void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-        currentState = EnemyState.Walking;
-        agent.speed = walkingSpeed;
-        agent.autoBraking = true; // Garantir que freia ao chegar perto
-        agent.stoppingDistance = 1f; // Distância de parada
-        animator = GetComponent<Animator>();
-        SetNewWalkTarget();
+   void Start()
+   {
+      player = GameObject.FindGameObjectWithTag("Player").transform;
+      currentState = EnemyState.Walking;
+      agent.speed = walkingSpeed;
+      agent.autoBraking = true; // Garantir que freia ao chegar perto
+      agent.stoppingDistance = 1f; // Distância de parada
+      animator = GetComponent<Animator>();
+      SetNewWalkTarget();
 
-    }
+   }
 
-    void Update()
-    {
-        if (GameManager.Instance.gameOver) return;
+   void Update()
+   {
+      if (GameManager.Instance.gameOver) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+      float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        HandleDeathCondition(distanceToPlayer);
-        UpdateStateMachine(distanceToPlayer);
-        HandleBreathingSounds(distanceToPlayer);
-    }
+      HandleDeathCondition(distanceToPlayer);
+      UpdateStateMachine(distanceToPlayer);
+      HandleBreathingSounds(distanceToPlayer);
 
-    void HandleBreathingSounds(float distance)
-    {
-        if (currentState == EnemyState.Walking && distance > detectionRadius)
-        {
-            soundCheckTimer += Time.deltaTime;
-            if (soundCheckTimer > 1f)
+      audioSource.volume = SoundManager.Instance.sfxVolume;
+   }
+
+   void HandleBreathingSounds(float distance)
+   {
+      if (currentState == EnemyState.Walking && distance > detectionRadius)
+      {
+         soundCheckTimer += Time.deltaTime;
+         if (soundCheckTimer > 1f)
+         {
+            soundCheckTimer = 0;
+            if (Random.Range(0, 100) < breathingSoundChance)
             {
-                soundCheckTimer = 0;
-                if (Random.Range(0, 100) < breathingSoundChance)
-                {
-                    SoundManager.Instance.PlayBreathingSound(audioSource);
-                }
+               SoundManager.Instance.PlayBreathingSound(audioSource);
             }
-        }
-    }
+         }
+      }
+   }
 
-    void UpdateStateMachine(float distanceToPlayer)
-    {
-        switch (currentState)
-        {
-            case EnemyState.Walking:
-                HandleWalkingState(distanceToPlayer);
-                break;
+   void UpdateStateMachine(float distanceToPlayer)
+   {
+      switch (currentState)
+      {
+         case EnemyState.Walking:
+            HandleWalkingState(distanceToPlayer);
+            break;
 
-            case EnemyState.Investigating:
-                HandleInvestigationState(distanceToPlayer);
-                break;
+         case EnemyState.Investigating:
+            HandleInvestigationState(distanceToPlayer);
+            break;
 
-            case EnemyState.Chasing:
-                HandleChaseState(distanceToPlayer);
-                break;
-        }
-    }
+         case EnemyState.Chasing:
+            HandleChaseState(distanceToPlayer);
+            break;
+      }
+   }
 
-    void HandleWalkingState(float distanceToPlayer)
-    {
-        // Atualizado para priorizar verificação de visão
-        if (distanceToPlayer <= detectionRadius)
-        {
-            if (HasClearLineOfSight())
-            {
-                StartChasing();
-                return; // Sai imediatamente após iniciar perseguição
-            }
-            else if (distanceToPlayer < detectionRadius * 0.5f) // Se estiver muito perto
-            {
-                StartInvestigating(player.position);
-            }
-        }
-
-        // Mantém a lógica de caminhada somente se não estiver perseguindo
-        if (agent.pathStatus == NavMeshPathStatus.PathComplete &&
-            agent.remainingDistance <= agent.stoppingDistance &&
-            Time.time - lastPathUpdateTime > pathUpdateDelay)
-        {
-            SetNewWalkTarget();
-            lastPathUpdateTime = Time.time;
-        }
-    }
-
-    void HandleInvestigationState(float distanceToPlayer)
-    {
-        investigationTimer -= Time.deltaTime;
-
-        // Verificação prioritária de linha de visada
-        if (HasClearLineOfSight())
-        {
+   void HandleWalkingState(float distanceToPlayer)
+   {
+      // Atualizado para priorizar verificação de visão
+      if (distanceToPlayer <= detectionRadius)
+      {
+         if (HasClearLineOfSight())
+         {
             StartChasing();
-            return;
-        }
+            return; // Sai imediatamente após iniciar perseguição
+         }
+         else if (distanceToPlayer < detectionRadius * 0.5f) // Se estiver muito perto
+         {
+            StartInvestigating(player.position);
+         }
+      }
 
-        // Atualização mais inteligente do destino
-        if (distanceToPlayer < Vector3.Distance(transform.position, investigationTarget) * 0.8f)
-        {
-            investigationTarget = player.position;
-            agent.SetDestination(investigationTarget);
-        }
+      // Mantém a lógica de caminhada somente se não estiver perseguindo
+      if (agent.pathStatus == NavMeshPathStatus.PathComplete &&
+          agent.remainingDistance <= agent.stoppingDistance &&
+          Time.time - lastPathUpdateTime > pathUpdateDelay)
+      {
+         SetNewWalkTarget();
+         lastPathUpdateTime = Time.time;
+      }
+   }
 
-        // Condição de saída melhorada
-        if (agent.remainingDistance <= agent.stoppingDistance || investigationTimer <= 0 || distanceToPlayer > detectionRadius)
-        {
-            ReturnToWalking();
-        }
-    }
+   void HandleInvestigationState(float distanceToPlayer)
+   {
+      investigationTimer -= Time.deltaTime;
 
-    void HandleChaseState(float distanceToPlayer)
-    {
-        agent.SetDestination(player.position);
+      // Verificação prioritária de linha de visada
+      if (HasClearLineOfSight())
+      {
+         StartChasing();
+         return;
+      }
 
-        if (distanceToPlayer > detectionRadius)
-        {
-            ReturnToWalking();
-        }
-    }
+      // Atualização mais inteligente do destino
+      if (distanceToPlayer < Vector3.Distance(transform.position, investigationTarget) * 0.8f)
+      {
+         investigationTarget = player.position;
+         agent.SetDestination(investigationTarget);
+      }
 
-    bool HasClearLineOfSight()
-    {
-        sightCheckTimer += Time.deltaTime;
-        if (sightCheckTimer < sightCheckInterval) return false;
-        sightCheckTimer = 0;
+      // Condição de saída melhorada
+      if (agent.remainingDistance <= agent.stoppingDistance || investigationTimer <= 0 || distanceToPlayer > detectionRadius)
+      {
+         ReturnToWalking();
+      }
+   }
 
-        Vector3 direction = player.position - transform.position;
-        float distance = Vector3.Distance(transform.position, player.position);
+   void HandleChaseState(float distanceToPlayer)
+   {
+      agent.SetDestination(player.position);
 
-        // Ajuste crucial: usar ~obstacleLayers para ignorar camadas bloqueadoras
-        if (!Physics.Raycast(transform.position, direction.normalized, out RaycastHit hit, distance, obstacleLayers))
-        {
-            return true;
-        }
+      if (distanceToPlayer > detectionRadius)
+      {
+         ReturnToWalking();
+      }
+   }
 
-        // Debug visual
-        Debug.DrawRay(transform.position, direction, Color.red, 0.5f);
-        return hit.collider.CompareTag("Player");
-    }
+   bool HasClearLineOfSight()
+   {
+      sightCheckTimer += Time.deltaTime;
+      if (sightCheckTimer < sightCheckInterval) return false;
+      sightCheckTimer = 0;
 
-    void StartChasing()
-    {
-        currentState = EnemyState.Chasing;
-        agent.speed = chasingSpeed;
-        agent.SetDestination(player.position);
-        animator.SetTrigger("ToChase");
-    }
+      Vector3 direction = player.position - transform.position;
+      float distance = Vector3.Distance(transform.position, player.position);
 
-    void StartInvestigating(Vector3 position)
-    {
-        currentState = EnemyState.Investigating;
-        investigationTarget = position;
-        agent.SetDestination(position);
-        investigationTimer = maxInvestigationTime;
-        animator.SetTrigger("ToIdle");
-    }
+      // Ajuste crucial: usar ~obstacleLayers para ignorar camadas bloqueadoras
+      if (!Physics.Raycast(transform.position, direction.normalized, out RaycastHit hit, distance, obstacleLayers))
+      {
+         return true;
+      }
 
-    void ReturnToWalking()
-    {
-        currentState = EnemyState.Walking;
-        agent.speed = walkingSpeed;
-        SetNewWalkTarget();
-        animator.SetTrigger("ToWalk");
-    }
+      // Debug visual
+      Debug.DrawRay(transform.position, direction, Color.red, 0.5f);
+      return hit.collider.CompareTag("Player");
+   }
 
-    void SetNewWalkTarget()
-    {
-        Vector3 randomDirection = Random.insideUnitSphere * walkRadius;
-        randomDirection += player.position;
-        randomDirection.y = player.position.y;
+   void StartChasing()
+   {
+      currentState = EnemyState.Chasing;
+      agent.speed = chasingSpeed;
+      agent.SetDestination(player.position);
+      animator.SetTrigger("ToChase");
+   }
 
-        int attempts = 0;
-        bool validPath = false;
+   void StartInvestigating(Vector3 position)
+   {
+      currentState = EnemyState.Investigating;
+      investigationTarget = position;
+      agent.SetDestination(position);
+      investigationTimer = maxInvestigationTime;
+      animator.SetTrigger("ToIdle");
+   }
 
-        // Tenta até 5 vezes encontrar um caminho válido
-        while (attempts < 5 && !validPath)
-        {
-            if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, walkRadius, NavMesh.AllAreas))
-            {
-                currentWalkTarget = hit.position;
-                agent.SetDestination(currentWalkTarget);
+   void ReturnToWalking()
+   {
+      currentState = EnemyState.Walking;
+      agent.speed = walkingSpeed;
+      SetNewWalkTarget();
+      animator.SetTrigger("ToWalk");
+   }
 
-                // Espera o cálculo do caminho
-                if (agent.pathPending) return;
+   void SetNewWalkTarget()
+   {
+      Vector3 randomDirection = Random.insideUnitSphere * walkRadius;
+      randomDirection += player.position;
+      randomDirection.y = player.position.y;
 
-                validPath = agent.pathStatus == NavMeshPathStatus.PathComplete;
-            }
-            attempts++;
-        }
+      int attempts = 0;
+      bool validPath = false;
 
-        if (!validPath)
-        {
-            Debug.LogWarning("Falha ao encontrar caminho válido");
-        }
-    }
+      // Tenta até 5 vezes encontrar um caminho válido
+      while (attempts < 5 && !validPath)
+      {
+         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, walkRadius, NavMesh.AllAreas))
+         {
+            currentWalkTarget = hit.position;
+            agent.SetDestination(currentWalkTarget);
 
-    void HandleDeathCondition(float distance)
-    {
-        if (distance < deathDistance)
-        {
-            SoundManager.Instance.PlayJumpscareSound(audioSource);
-            GameManager.Instance.PlayerDied();
-            agent.isStopped = true;
-        }
-    }
+            // Espera o cálculo do caminho
+            if (agent.pathPending) return;
+
+            validPath = agent.pathStatus == NavMeshPathStatus.PathComplete;
+         }
+         attempts++;
+      }
+
+      if (!validPath)
+      {
+         Debug.LogWarning("Falha ao encontrar caminho válido");
+      }
+   }
+
+   void HandleDeathCondition(float distance)
+   {
+      if (distance < deathDistance)
+      {
+         SoundManager.Instance.PlayJumpscareSound(audioSource);
+         GameManager.Instance.PlayerDied();
+         agent.isStopped = true;
+      }
+   }
 }

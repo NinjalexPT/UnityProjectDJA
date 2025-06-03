@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
    public static GameManager Instance;
 
    [SerializeField] private int coinCount;
-   [SerializeField] private bool fog;
+   public bool fog;
    public bool gameOver;
 
    void Awake()
@@ -24,8 +24,7 @@ public class GameManager : MonoBehaviour
 
    void Start()
    {
-      RenderSettings.fog = fog;
-      // Inicializa UI com valor inicial de moedas
+
       if (UIManager.Instance != null)
          UIManager.Instance.UpdateCoinCount(coinCount);
    }

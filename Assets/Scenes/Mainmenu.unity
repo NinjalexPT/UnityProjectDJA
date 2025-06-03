@@ -338,6 +338,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 283546966}
+  - component: {fileID: 283546967}
   m_Layer: 0
   m_Name: SoundManager
   m_TagString: Untagged
@@ -360,6 +361,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &283546967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 283546965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa4ff14d6ba374db1b5c2176ed8c34ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  musicSource: {fileID: 0}
+  sfxSource: {fileID: 0}
+  movementSource: {fileID: 0}
+  heartbeatSource: {fileID: 0}
+  chaseSource: {fileID: 0}
+  walkingSound: {fileID: 8300000, guid: 2869d0d910a5f465cb3e8cd774226136, type: 3}
+  runningSound: {fileID: 8300000, guid: 063125742c1ef47f991bc639c1ebe623, type: 3}
+  chasingSound: {fileID: 8300000, guid: 11c8c77fa6cca445895aa84699433ae4, type: 3}
+  escapedSound: {fileID: 8300000, guid: 1375c7b3e0fb642d39f2a11cfa7300b8, type: 3}
+  escapeCooldown: 3
+  heartbeatSound: {fileID: 8300000, guid: 1ad4bb04d4dab48e4ad49167c544c7aa, type: 3}
+  maxHeartbeatDistance: 15
+  minHeartbeatPitch: 0.5
+  maxHeartbeatPitch: 2
+  jumpscareSound: {fileID: 8300000, guid: a84db7b35e88d4f8b8113bc115e0403b, type: 3}
+  breathingSound: {fileID: 8300000, guid: d027dab6ed71b4c3f835d7b28c4deca6, type: 3}
+  musicVolume: 50
+  sfxVolume: 50
 --- !u!1 &852059921
 GameObject:
   m_ObjectHideFlags: 0
@@ -1049,12 +1080,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinCount: 0
-  coinCountText: {fileID: 0}
-  coinObject: {fileID: 0}
-  interactText: {fileID: 0}
-  deathScreen: {fileID: 0}
-  playerUI: {fileID: 0}
-  fog: 0
+  fog: 1
   gameOver: 0
 --- !u!4 &1494128388
 Transform:

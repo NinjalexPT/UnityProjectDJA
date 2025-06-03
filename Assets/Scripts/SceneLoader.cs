@@ -37,21 +37,20 @@ public class SceneLoader : MonoBehaviour
       SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
    }
 
-    //to use ingame to unlock mouse
-    public void ContinueButton()
-    {
-        Cursor.visible = false; // Makes the cursor invisible
-        Cursor.lockState = CursorLockMode.Locked; // locks the cursor
-        Transform child = transform.Find("GameMenuScreen");
-        if (child != null)
-        {
-            child.gameObject.SetActive(false);
-        }
-        else
-        {
-            Debug.LogWarning("GameMenuScreen não foi encontrado como filho deste Canvas.");
-        }
-    }
+   public void ContinueButton()
+   {
+      Cursor.visible = false;
+      Cursor.lockState = CursorLockMode.Locked;
+      Transform child = transform.Find("blabla");
+      if (child != null)
+      {
+         child.gameObject.SetActive(false);
+      }
+      else
+      {
+         Debug.LogWarning("GameMenuScreen nï¿½o foi encontrado como filho deste Canvas.");
+      }
+   }
 
 
    public void IntoGame()

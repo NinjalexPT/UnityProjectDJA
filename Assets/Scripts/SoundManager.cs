@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Linq;
 using System;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SoundManager : MonoBehaviour
 {
@@ -25,8 +27,8 @@ public class SoundManager : MonoBehaviour
    [Header("Heartbeat Settings")]
    public AudioClip heartbeatSound;
    public float maxHeartbeatDistance = 15f;
-   [Range(0.5f, 1.5f)] public float minHeartbeatPitch = 0.8f;
-   [Range(1.6f, 3f)] public float maxHeartbeatPitch = 2.5f;
+   [Range(0.5f, 1.5f)] public float minHeartbeatPitch = 0.5f;
+   [Range(1.6f, 3f)] public float maxHeartbeatPitch = 2.0f;
 
    [Header("Monster")]
    [SerializeField] private AudioClip jumpscareSound;
@@ -38,8 +40,8 @@ public class SoundManager : MonoBehaviour
    private float cooldownTimer;
    private bool isChaseSoundFinishing;
 
-   public float musicVolume;
-   public float sfxVolume;
+   public float musicVolume = 100f;
+   public float sfxVolume = 100f;
 
    private void Awake()
    {
@@ -66,6 +68,14 @@ public class SoundManager : MonoBehaviour
 
    private void Update()
    {
+
+      if (musicSource == null || sfxSource == null ||
+            movementSource == null || heartbeatSource == null || chaseSource == null)
+      {
+         GetSources();
+         return;
+      }
+
       if (GameManager.Instance.gameOver)
       {
          StopAllSounds();
@@ -76,6 +86,7 @@ public class SoundManager : MonoBehaviour
       heartbeatSource.volume = sfxVolume;
       chaseSource.volume = sfxVolume;
       sfxSource.volume = sfxVolume;
+      musicSource.volume = musicVolume;
 
       UpdateHeartbeat();
       UpdateChaseState();
@@ -89,6 +100,24 @@ public class SoundManager : MonoBehaviour
       heartbeatSource.Stop();
       chaseSource.Stop();
       sfxSource.Stop();
+   }
+
+   public void PauseAllSound()
+   {
+      movementSource.Pause();
+      heartbeatSource.Pause();
+      chaseSource.Pause();
+      sfxSource.Pause();
+      musicSource.Pause();
+   }
+
+   public void ResumeAllSounds()
+   {
+      movementSource.UnPause();
+      heartbeatSource.UnPause();
+      chaseSource.UnPause();
+      sfxSource.UnPause();
+      musicSource.UnPause();
    }
 
    void FindPlayer()
@@ -225,5 +254,64 @@ public class SoundManager : MonoBehaviour
    internal void PlayJumpscareSound(AudioSource monsterAudioSource)
    {
       monsterAudioSource.PlayOneShot(jumpscareSound);
+   }
+
+   void GetSources()
+   {
+      if (SceneManager.GetActiveScene().name == "Maingame")
+      {
+         musicSource = GameObject.Find("Music Source")?.GetComponent<AudioSource>();
+         if (musicSource != null)
+         {
+            musicSource.volume = musicVolume;
+            musicSource.Play();
+         }
+         else
+         {
+            Debug.LogWarning("Music Source not found");
+         }
+
+         sfxSource = GameObject.Find("SFX")?.GetComponent<AudioSource>();
+         if (sfxSource != null)
+         {
+            sfxSource.volume = sfxVolume;
+         }
+         else
+         {
+            Debug.LogWarning("SFX Source not found");
+         }
+
+         movementSource = GameObject.Find("Movement")?.GetComponent<AudioSource>();
+         if (movementSource != null)
+         {
+            movementSource.volume = sfxVolume;
+         }
+         else
+         {
+            Debug.LogWarning("Movement Source not found");
+         }
+
+         heartbeatSource = GameObject.Find("Heartbeat")?.GetComponent<AudioSource>();
+         if (heartbeatSource != null)
+         {
+            heartbeatSource.volume = sfxVolume;
+            heartbeatSource.loop = true;
+            heartbeatSource.Play();
+         }
+         else
+         {
+            Debug.LogWarning("Heartbeat Source not found");
+         }
+
+         chaseSource = GameObject.Find("Chasing")?.GetComponent<AudioSource>();
+         if (chaseSource != null)
+         {
+            chaseSource.volume = sfxVolume;
+         }
+         else
+         {
+            Debug.LogWarning("Chase Source not found");
+         }
+      }
    }
 }
