@@ -29,11 +29,11 @@ public class MachineController : MonoBehaviour
       {
          if (GameManager.Instance.CoinCount() >= requiredCoins)
          {
-            GameManager.Instance.ShowInteractText("Press E to play (" + requiredCoins + " coins)");
+            UIManager.Instance.ShowInteractText("Press E to play (" + requiredCoins + " coins)");
             playerInside = true;
          }
          else
-            GameManager.Instance.ShowInteractText("You need at least (" + requiredCoins + " coins) coins to play.");
+            UIManager.Instance.ShowInteractText("You need at least (" + requiredCoins + " coins) coins to play.");
       }
    }
 
@@ -42,7 +42,7 @@ public class MachineController : MonoBehaviour
       if (other.tag == "Player")
       {
          playerInside = false;
-         GameManager.Instance.HideInteractText();
+         UIManager.Instance.HideInteractText();
       }
    }
 

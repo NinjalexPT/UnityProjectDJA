@@ -735,11 +735,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d942eb76859ed9041b8369c96c4be18a, type: 3}
---- !u!1 &219177009 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4459864851551516604, guid: 6bacecc4f3df9584198879c73a6b6c36, type: 3}
-  m_PrefabInstance: {fileID: 472333583}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &220417096
 GameObject:
   m_ObjectHideFlags: 0
@@ -1708,6 +1703,8 @@ MonoBehaviour:
   maxHeartbeatPitch: 2
   jumpscareSound: {fileID: 8300000, guid: a84db7b35e88d4f8b8113bc115e0403b, type: 3}
   breathingSound: {fileID: 8300000, guid: d027dab6ed71b4c3f835d7b28c4deca6, type: 3}
+  musicVolume: 0
+  sfxVolume: 0
 --- !u!4 &587013532
 Transform:
   m_ObjectHideFlags: 0
@@ -1755,11 +1752,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 921468078}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 23, y: 243}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 25, y: -150}
   m_SizeDelta: {x: 200, y: 50}
-  m_Pivot: {x: 0.5, y: 1}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &609922517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1894,12 +1891,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinCount: 0
-  coinCountText: {fileID: 1650855343}
-  coinObject: {fileID: 1613706847}
-  interactText: {fileID: 1820394581}
-  deathScreen: {fileID: 1911064046}
-  playerUI: {fileID: 219177009}
-  fog: 0
+  fog: 1
   gameOver: 0
 --- !u!4 &830120236
 Transform:
@@ -4408,6 +4400,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1820394579}
   m_CullTransparentMesh: 1
+--- !u!1 &1843798749
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1843798751}
+  - component: {fileID: 1843798750}
+  m_Layer: 0
+  m_Name: UIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1843798750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1843798749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fa3a5b33c4ac4b7ea08a99c09165bd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinCountText: {fileID: 1650855343}
+  coinObject: {fileID: 0}
+  interactText: {fileID: 1820394581}
+  deathScreen: {fileID: 1911064046}
+  playerUI: {fileID: 921468077}
+--- !u!4 &1843798751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1843798749}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 464.4926, y: 212.68199, z: 3250.4421}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1911064046
 GameObject:
   m_ObjectHideFlags: 0
@@ -4865,3 +4906,4 @@ SceneRoots:
   - {fileID: 25227923}
   - {fileID: 323748829}
   - {fileID: 545596979}
+  - {fileID: 1843798751}

@@ -25,6 +25,7 @@ public class SlotMachine : MachineController
 
    public override void OnUseMachine()
    {
+      if (GameManager.Instance.CoinCount() < RequiredCoins) return;
       if (!canDiscountCoins) return;
       GameManager.Instance.AddCoins(-RequiredCoins);
       MachineController.canDiscountCoins = false;

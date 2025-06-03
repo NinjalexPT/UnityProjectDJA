@@ -20,15 +20,13 @@ public class RouletteTable : MachineController
 
    public override void Update()
    {
-      // 1) só permitimos entrar em OnUseMachine (e descontar moedas)
-      //    enquanto não estivermos em “choose color”
+
       if (!showingChooseColor)
          base.Update();
 
-      // 2) se já estivermos em “choose color”, mostramos o prompt
       if (showingChooseColor)
       {
-         GameManager.Instance.ShowInteractText(
+         UIManager.Instance.ShowInteractText(
            "Choose a color: R = Red, G = Green, B = Black");
 
          if (Input.GetKeyDown(KeyCode.R)) ChooseColor(0);
@@ -37,10 +35,11 @@ public class RouletteTable : MachineController
       }
    }
 
-   // quando o jogador carrega em E
+
    public override void OnUseMachine()
    {
-      // impede duplo desconto
+      if (GameManager.Instance.gameOver) return;
+      if (GameManager.Instance.CoinCount() < RequiredCoins) return;
       if (showingChooseColor || hasChargedCoins) return;
 
       showingChooseColor = true;
@@ -50,7 +49,7 @@ public class RouletteTable : MachineController
       GameManager.Instance.AddCoins(-RequiredCoins);
 
       // imediatamente substitui o texto de “Press E” por “Choose a color”
-      GameManager.Instance.ShowInteractText(
+      UIManager.Instance.ShowInteractText(
         "Choose a color: R = Red, G = Green, B = Black");
    }
 
@@ -60,7 +59,7 @@ public class RouletteTable : MachineController
       //  a) escondemos o texto
       //  b) saímos do modo escolher cor
       //  c) começamos o spin
-      GameManager.Instance.HideInteractText();
+      UIManager.Instance.HideInteractText();
       showingChooseColor = false;
       StartSpin(color);
    }
@@ -111,7 +110,7 @@ public class RouletteTable : MachineController
       // 3) spin acabou, voltamos a mostrar “Press E to play…”
       //    e limpamos flags para permitir novo jogo
       hasChargedCoins = false;
-      GameManager.Instance.ShowInteractText(
+      UIManager.Instance.ShowInteractText(
         $"Press E to play ({RequiredCoins} coins)");
 
       MachineController.canDiscountCoins = true;

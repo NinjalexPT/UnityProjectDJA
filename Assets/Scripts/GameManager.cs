@@ -1,94 +1,70 @@
-using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-  public static GameManager Instance;
+   public static GameManager Instance;
 
-  [SerializeField]
-  private int coinCount;
+   [SerializeField] private int coinCount;
+   [SerializeField] private bool fog;
+   public bool gameOver;
 
-  [SerializeField]
-  private TextMeshProUGUI coinCountText;
-  [SerializeField]
-  private GameObject coinObject;
+   void Awake()
+   {
+      if (Instance == null)
+      {
+         Instance = this;
+         DontDestroyOnLoad(gameObject);
+      }
+      else
+      {
+         Destroy(gameObject);
+      }
+   }
 
-  [SerializeField]
-  private TextMeshProUGUI interactText;
+   void Start()
+   {
+      RenderSettings.fog = fog;
+      // Inicializa UI com valor inicial de moedas
+      if (UIManager.Instance != null)
+         UIManager.Instance.UpdateCoinCount(coinCount);
+   }
 
-  [SerializeField]
-  private GameObject deathScreen;
-  [SerializeField]
-  private GameObject playerUI;
+   public void AddCoins(int amount)
+   {
+      coinCount += amount;
+      if (UIManager.Instance != null)
+         UIManager.Instance.UpdateCoinCount(coinCount);
+   }
 
-  [SerializeField]
-  private bool fog;
+   public int CoinCount()
+   {
+      return coinCount;
+   }
 
-  public bool gameOver;
+   public void PlayerDied()
+   {
+      gameOver = true;
+      var playerController = FindObjectOfType<FirstPersonController>();
 
-  public void AddCoins(int amount)
-  {
-    coinCount += amount;
-    coinCountText.text = "" + coinCount;
-  }
+      if (UIManager.Instance != null)
+      {
+         UIManager.Instance.ShowDeathScreen();
+         UIManager.Instance.HideInteractText();
+         UIManager.Instance.SetCoinObjectActive(false);
+         UIManager.Instance.SetPlayerUIActive(false);
+      }
 
-  public int CoinCount()
-  {
-    return this.coinCount;
-  }
+      Cursor.visible = true;
+      Cursor.lockState = CursorLockMode.None;
 
-  public void ShowInteractText(String text)
-  {
-    interactText.text = text;
-    interactText.rectTransform.anchoredPosition = new Vector3(100f, -20f, 0f);
-  }
+      Destroy(playerController);
+      SoundManager.Instance.StopMovementSound();
+   }
 
-  public void HideInteractText()
-  {
-    interactText.rectTransform.anchoredPosition = new Vector3(100f, 60f, 0f);
-  }
-
-  public void PlayerDied()
-  {
-
-    gameOver = true;
-
-    FirstPersonController playerController = FindFirstObjectByType<FirstPersonController>();
-    deathScreen.SetActive(true);
-    Cursor.visible = true; // Makes the cursor visible
-    Cursor.lockState = CursorLockMode.None; // Unlocks the cursor
-
-        HideInteractText();
-    coinObject.SetActive(false);
-
-    playerUI.SetActive(false);
-    Destroy(playerController);
-
-    SoundManager.Instance.StopMovementSound();
-
-  }
-
-  public void RestartGame()
-  {
-
-    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-
-    }
-  void Start()
-  {
-    if (Instance == null)
-    {
-      Instance = this;
-    }
-    else
-    {
-      Destroy(this);
-    }
-
-    RenderSettings.fog = fog;
-  }
-
+   public void RestartGame()
+   {
+      SceneManager.LoadScene(SceneManager
+        .GetActiveScene().buildIndex);
+   }
 }
