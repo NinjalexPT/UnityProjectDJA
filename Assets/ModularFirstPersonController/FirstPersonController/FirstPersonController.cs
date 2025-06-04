@@ -66,6 +66,7 @@ public class FirstPersonController : MonoBehaviour
 
    public bool playerCanMove = true;
    public float walkSpeed = 5f;
+   public float speedModifier = 1f;
    public float maxVelocityChange = 10f;
 
    // Internal Variables
@@ -140,8 +141,20 @@ public class FirstPersonController : MonoBehaviour
 
    #endregion
 
+   public static FirstPersonController Instance { get; private set; }
+
    private void Awake()
    {
+
+      if (Instance == null)
+      {
+         Instance = this;
+      }
+      else
+      {
+         Destroy(gameObject);
+         return;
+      }
 
       RenderSettings.fog = GameManager.Instance.fog;
 
@@ -265,6 +278,7 @@ public class FirstPersonController : MonoBehaviour
 
    private void Update()
    {
+
       #region Camera
 
       // Control sound
@@ -469,7 +483,7 @@ public class FirstPersonController : MonoBehaviour
          // All movement calculations shile sprint is active
          if (enableSprint && Input.GetKey(sprintKey) && sprintRemaining > 0f && !isSprintCooldown)
          {
-            targetVelocity = transform.TransformDirection(targetVelocity) * sprintSpeed;
+            targetVelocity = transform.TransformDirection(targetVelocity) * sprintSpeed * speedModifier;
 
             // Apply a force that attempts to reach our target velocity
             Vector3 velocity = rb.linearVelocity;
@@ -507,7 +521,7 @@ public class FirstPersonController : MonoBehaviour
                sprintBarCG.alpha -= 3 * Time.deltaTime;
             }
 
-            targetVelocity = transform.TransformDirection(targetVelocity) * walkSpeed;
+            targetVelocity = transform.TransformDirection(targetVelocity) * walkSpeed * speedModifier;
 
             // Apply a force that attempts to reach our target velocity
             Vector3 velocity = rb.linearVelocity;
@@ -586,12 +600,12 @@ public class FirstPersonController : MonoBehaviour
          // Calculates HeadBob speed during sprint
          if (isSprinting)
          {
-            timer += Time.deltaTime * (bobSpeed + sprintSpeed);
+            timer += Time.deltaTime * (bobSpeed + sprintSpeed * speedModifier);
          }
          // Calculates HeadBob speed during crouched movement
          else if (isCrouched)
          {
-            timer += Time.deltaTime * (bobSpeed * speedReduction);
+            timer += Time.deltaTime * (bobSpeed * speedReduction * speedModifier);
          }
          // Calculates HeadBob speed during walking
          else

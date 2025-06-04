@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour
    [Header("Navigation Settings")]
    [SerializeField] private NavMeshAgent agent;
    [SerializeField] private float walkingSpeed = 3f;
+   public static float speedModifier = 1f;
    [SerializeField] private float chasingSpeed = 6f;
    [SerializeField] private float detectionRadius = 30f;
    [SerializeField] private float deathDistance = 1f;

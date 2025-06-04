@@ -48,17 +48,12 @@ public class RouletteTable : MachineController
 
       GameManager.Instance.AddCoins(-RequiredCoins);
 
-      // imediatamente substitui o texto de “Press E” por “Choose a color”
       UIManager.Instance.ShowInteractText(
         "Choose a color: R = Red, G = Green, B = Black");
    }
 
    private void ChooseColor(int color)
    {
-      // ao escolher cor:
-      //  a) escondemos o texto
-      //  b) saímos do modo escolher cor
-      //  c) começamos o spin
       UIManager.Instance.HideInteractText();
       showingChooseColor = false;
       StartSpin(color);
@@ -71,7 +66,6 @@ public class RouletteTable : MachineController
 
    private IEnumerator SpinAnimation(int color)
    {
-      // parte de animação livre
       float timer = 0f;
       while (timer < spinDuration)
       {
@@ -80,9 +74,10 @@ public class RouletteTable : MachineController
          yield return null;
       }
 
-      // decide finalZ com floats (nunca 360/37 inteiro)
       bool success = Random.value > 0.25f;
       float finalZ = 0f;
+
+      print("Roulette spin result: " + (success ? "Success" : "Failure"));
 
       if (success)
       {
@@ -92,14 +87,18 @@ public class RouletteTable : MachineController
             case 1: finalZ = (360f / 37f) * 28f; break;
             case 2: finalZ = (360f / 37f) * 1f; break;
          }
+
+         PowerUpManager.Instance.ActivateRandomPowerUp();
+
       }
       else
       {
          int randomBin = Random.Range(0, 12);
          finalZ = (360f / 12f) * randomBin;
+
+         PowerUpManager.Instance.ActivateRandomDebuff();
       }
 
-      // aplica ROTATION ABSOLUTA sobre a rotação original
       rouletteWheel.transform.localRotation =
         Quaternion.Euler(
           originalRotation.eulerAngles.x,
@@ -107,8 +106,6 @@ public class RouletteTable : MachineController
           finalZ
         );
 
-      // 3) spin acabou, voltamos a mostrar “Press E to play…”
-      //    e limpamos flags para permitir novo jogo
       hasChargedCoins = false;
       UIManager.Instance.ShowInteractText(
         $"Press E to play ({RequiredCoins} coins)");

@@ -12,6 +12,15 @@ public class UIManager : MonoBehaviour
    [SerializeField] private GameObject playerUI;
    [SerializeField] private GameObject pauseScreen;
 
+   [Header("Power Up UI")]
+   [SerializeField] private GameObject powerUpUI;
+   [SerializeField] private GameObject speedBoostGO;
+   [SerializeField] private GameObject doubleCoinsGO;
+   [SerializeField] private GameObject seeEnemyGO;
+   [SerializeField] private GameObject gunGO;
+   [SerializeField] private GameObject enemySpeedBoostGO;
+   [SerializeField] private GameObject speedSlowGO;
+
    public static bool isPauseScreenActive;
 
    void Awake()
@@ -41,6 +50,16 @@ public class UIManager : MonoBehaviour
          }
       }
       isPauseScreenActive = pauseScreen.activeSelf;
+
+      if (PowerUpManager.Instance != null)
+      {
+         speedBoostGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.SpeedBoost));
+         doubleCoinsGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.DoubleCoins));
+         seeEnemyGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.SeeEnemy));
+         gunGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.Gun));
+         enemySpeedBoostGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.EnemySpeedBoost));
+         speedSlowGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.SpeedSlow));
+      }
    }
 
    public void ShowPauseScreen()
@@ -63,6 +82,31 @@ public class UIManager : MonoBehaviour
       Cursor.lockState = CursorLockMode.Locked;
       Cursor.visible = false;
       SoundManager.Instance.ResumeAllSounds();
+   }
+
+   public void SetPowerUpText(PowerUpType type, string text)
+   {
+      GameObject go = null;
+      switch (type)
+      {
+         case PowerUpType.SpeedBoost:
+            go = speedBoostGO; break;
+         case PowerUpType.DoubleCoins:
+            go = doubleCoinsGO; break;
+         case PowerUpType.SeeEnemy:
+            go = seeEnemyGO; break;
+         case PowerUpType.Gun:
+            go = gunGO; break;
+         case PowerUpType.EnemySpeedBoost:
+            go = enemySpeedBoostGO; break;
+         case PowerUpType.SpeedSlow:
+            go = speedSlowGO; break;
+      }
+
+      if (go == null) return;
+      var tmp = go.GetComponentInChildren<TextMeshProUGUI>();
+      if (tmp != null) tmp.text = text;
+      go.SetActive(!string.IsNullOrEmpty(text));
    }
 
    public void IntoMenu()

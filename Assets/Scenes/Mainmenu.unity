@@ -1079,7 +1079,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5901ffa6eca71453bbabc5747b5ec732, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinCount: 0
+  coinCount: 1000
   fog: 1
   gameOver: 0
 --- !u!4 &1494128388
