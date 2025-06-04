@@ -46,7 +46,7 @@ public class GunController : MonoBehaviour
 
    void Update()
    {
-      if (Input.GetMouseButtonDown(0))
+      if (Input.GetMouseButtonDown(0) && !UIManager.isPauseScreenActive)
       {
          Fire();
       }
@@ -66,11 +66,10 @@ public class GunController : MonoBehaviour
       else
       {
          shotsFired = 0;
+         PowerUpManager.Instance.DeactivatePowerUp(PowerUpType.Gun);
          UIManager.Instance.SetPowerUpText(
              PowerUpType.Gun,
              "3/3");
-         PowerUpManager.Instance.DeactivatePowerUp(PowerUpType.Gun);
-         Debug.Log("Out of ammo!");
       }
    }
 
@@ -89,12 +88,24 @@ public class GunController : MonoBehaviour
       if (Physics.Raycast(startPos, -muzzleTransform.forward, out hit, range))
       {
          endPos = hit.point;
-         Debug.Log($"Hit: {hit.collider.name}");
+         if (hit.collider.CompareTag("Enemy"))
+         {
+            EnemyController enemy = hit.collider.GetComponent<EnemyController>();
+            if (enemy != null)
+            {
+               enemy.currentState = EnemyController.EnemyState.Dead;
+            }
+         }
       }
 
       // Desenha o beam
       lineRenderer.SetPosition(0, startPos);
       lineRenderer.SetPosition(1, endPos);
+
+      SoundManager.Instance.sfxSource.PlayOneShot(
+         SoundManager.Instance.gunSound
+      );
+
       StartCoroutine(ShowBeam());
    }
 

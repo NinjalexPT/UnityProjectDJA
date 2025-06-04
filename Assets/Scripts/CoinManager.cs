@@ -14,6 +14,8 @@ public class CoinManager : MonoBehaviour
    private Collider coinCollider;
    private Vector3 initialPosition; // Store the initial position of the coin
 
+   public static int valueModifier = 1;
+
    private void Start()
    {
       //Check if the AudioSource is assigned
@@ -59,7 +61,7 @@ public class CoinManager : MonoBehaviour
       if (other.CompareTag("Player"))
       {
 
-         GameManager.Instance.AddCoins(this.coinValue);
+         GameManager.Instance.AddCoins(this.coinValue * valueModifier);
 
          Debug.Log("Coin Collected!");
          //Play sound effect

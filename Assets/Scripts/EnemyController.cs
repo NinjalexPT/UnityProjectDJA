@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -7,7 +8,8 @@ public class EnemyController : MonoBehaviour
    {
       Walking,
       Investigating,
-      Chasing
+      Chasing,
+      Dead
    }
 
    [Header("Navigation Settings")]
@@ -38,45 +40,77 @@ public class EnemyController : MonoBehaviour
    private Vector3 currentWalkTarget;
    private float lastPathUpdateTime; // Controle de tempo
 
+   [Header("X-Ray Vision")]
+   public static bool seeEnemy = false;
+   public Material xrayMaterial;
+
+   [SerializeField] private Material[] originalMats;
+   [SerializeField] private Renderer rend;
+
    private Animator animator;
+
+   void Awake()
+   {
+      // Guarda materiais originais para o XRay
+      originalMats = rend.materials;
+   }
 
    void Start()
    {
       player = GameObject.FindGameObjectWithTag("Player").transform;
       currentState = EnemyState.Walking;
-      agent.speed = walkingSpeed;
-      agent.autoBraking = true; // Garantir que freia ao chegar perto
-      agent.stoppingDistance = 1f; // Distância de parada
+      agent.speed = walkingSpeed * speedModifier;
+      agent.autoBraking = true;
+      agent.stoppingDistance = 1f;
       animator = GetComponent<Animator>();
       SetNewWalkTarget();
-
    }
 
    void Update()
    {
       if (GameManager.Instance.gameOver) return;
 
-      float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+      float distanceToPlayer = Vector3
+          .Distance(transform.position, player.position);
 
       HandleDeathCondition(distanceToPlayer);
       UpdateStateMachine(distanceToPlayer);
       HandleBreathingSounds(distanceToPlayer);
 
       audioSource.volume = SoundManager.Instance.sfxVolume;
+
+      // X-Ray toggle
+      if (seeEnemy) SetXRay(true);
+      else SetXRay(false);
+   }
+
+   public void SetXRay(bool on)
+   {
+      if (on)
+      {
+         var arr = new Material[originalMats.Length];
+         for (int i = 0; i < arr.Length; i++)
+            arr[i] = xrayMaterial;
+         rend.materials = arr;
+      }
+      else
+      {
+         rend.materials = originalMats;
+      }
    }
 
    void HandleBreathingSounds(float distance)
    {
-      if (currentState == EnemyState.Walking && distance > detectionRadius)
+      if (currentState == EnemyState.Walking &&
+          distance > detectionRadius)
       {
          soundCheckTimer += Time.deltaTime;
          if (soundCheckTimer > 1f)
          {
             soundCheckTimer = 0;
             if (Random.Range(0, 100) < breathingSoundChance)
-            {
-               SoundManager.Instance.PlayBreathingSound(audioSource);
-            }
+               SoundManager.Instance
+                   .PlayBreathingSound(audioSource);
          }
       }
    }
@@ -88,34 +122,33 @@ public class EnemyController : MonoBehaviour
          case EnemyState.Walking:
             HandleWalkingState(distanceToPlayer);
             break;
-
          case EnemyState.Investigating:
             HandleInvestigationState(distanceToPlayer);
             break;
-
          case EnemyState.Chasing:
             HandleChaseState(distanceToPlayer);
+            break;
+         case EnemyState.Dead:
+            DieTemporarily(15f);
             break;
       }
    }
 
    void HandleWalkingState(float distanceToPlayer)
    {
-      // Atualizado para priorizar verificação de visão
       if (distanceToPlayer <= detectionRadius)
       {
          if (HasClearLineOfSight())
          {
             StartChasing();
-            return; // Sai imediatamente após iniciar perseguição
+            return;
          }
-         else if (distanceToPlayer < detectionRadius * 0.5f) // Se estiver muito perto
+         else if (distanceToPlayer < detectionRadius * 0.5f)
          {
             StartInvestigating(player.position);
          }
       }
 
-      // Mantém a lógica de caminhada somente se não estiver perseguindo
       if (agent.pathStatus == NavMeshPathStatus.PathComplete &&
           agent.remainingDistance <= agent.stoppingDistance &&
           Time.time - lastPathUpdateTime > pathUpdateDelay)
@@ -129,22 +162,23 @@ public class EnemyController : MonoBehaviour
    {
       investigationTimer -= Time.deltaTime;
 
-      // Verificação prioritária de linha de visada
       if (HasClearLineOfSight())
       {
          StartChasing();
          return;
       }
 
-      // Atualização mais inteligente do destino
-      if (distanceToPlayer < Vector3.Distance(transform.position, investigationTarget) * 0.8f)
+      if (distanceToPlayer <
+          Vector3.Distance(transform.position,
+                            investigationTarget) * 0.8f)
       {
          investigationTarget = player.position;
          agent.SetDestination(investigationTarget);
       }
 
-      // Condição de saída melhorada
-      if (agent.remainingDistance <= agent.stoppingDistance || investigationTimer <= 0 || distanceToPlayer > detectionRadius)
+      if (agent.remainingDistance <= agent.stoppingDistance ||
+          investigationTimer <= 0 ||
+          distanceToPlayer > detectionRadius)
       {
          ReturnToWalking();
       }
@@ -155,9 +189,7 @@ public class EnemyController : MonoBehaviour
       agent.SetDestination(player.position);
 
       if (distanceToPlayer > detectionRadius)
-      {
          ReturnToWalking();
-      }
    }
 
    bool HasClearLineOfSight()
@@ -166,17 +198,26 @@ public class EnemyController : MonoBehaviour
       if (sightCheckTimer < sightCheckInterval) return false;
       sightCheckTimer = 0;
 
-      Vector3 direction = player.position - transform.position;
-      float distance = Vector3.Distance(transform.position, player.position);
+      Vector3 direction =
+          player.position - transform.position;
+      float distance =
+          Vector3.Distance(transform.position,
+                           player.position);
 
-      // Ajuste crucial: usar ~obstacleLayers para ignorar camadas bloqueadoras
-      if (!Physics.Raycast(transform.position, direction.normalized, out RaycastHit hit, distance, obstacleLayers))
+      // testamos colisão com layers de obstáculo
+      if (!Physics.Raycast(transform.position,
+                           direction.normalized,
+                           out RaycastHit hit,
+                           distance,
+                           obstacleLayers))
       {
          return true;
       }
 
-      // Debug visual
-      Debug.DrawRay(transform.position, direction, Color.red, 0.5f);
+      Debug.DrawRay(transform.position,
+                    direction,
+                    Color.red,
+                    0.5f);
       return hit.collider.CompareTag("Player");
    }
 
@@ -207,42 +248,63 @@ public class EnemyController : MonoBehaviour
 
    void SetNewWalkTarget()
    {
-      Vector3 randomDirection = Random.insideUnitSphere * walkRadius;
+      Vector3 randomDirection =
+          Random.insideUnitSphere * walkRadius;
       randomDirection += player.position;
       randomDirection.y = player.position.y;
 
       int attempts = 0;
       bool validPath = false;
 
-      // Tenta até 5 vezes encontrar um caminho válido
       while (attempts < 5 && !validPath)
       {
-         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, walkRadius, NavMesh.AllAreas))
+         if (NavMesh.SamplePosition(randomDirection,
+                                    out NavMeshHit hit,
+                                    walkRadius,
+                                    NavMesh.AllAreas))
          {
             currentWalkTarget = hit.position;
             agent.SetDestination(currentWalkTarget);
-
-            // Espera o cálculo do caminho
             if (agent.pathPending) return;
-
-            validPath = agent.pathStatus == NavMeshPathStatus.PathComplete;
+            validPath =
+                agent.pathStatus ==
+                NavMeshPathStatus.PathComplete;
          }
          attempts++;
       }
 
       if (!validPath)
-      {
          Debug.LogWarning("Falha ao encontrar caminho válido");
-      }
    }
 
    void HandleDeathCondition(float distance)
    {
-      if (distance < deathDistance)
+      // só prenche o estado de Dead e dispara animação uma vez
+      if (currentState != EnemyState.Dead &&
+          distance < deathDistance)
       {
-         SoundManager.Instance.PlayJumpscareSound(audioSource);
-         GameManager.Instance.PlayerDied();
+         currentState = EnemyState.Dead;
          agent.isStopped = true;
+         // dispara a animação de morte — crie no Animator
+         // um Trigger chamado "ToDead"
+         animator.SetTrigger("ToDie");
+         SoundManager.Instance
+             .PlayJumpscareSound(audioSource);
+         GameManager.Instance.PlayerDied();
       }
+   }
+
+   public void DieTemporarily(float sec)
+   {
+      StartCoroutine(DieCoroutine(sec));
+   }
+
+   private IEnumerator DieCoroutine(float sec)
+   {
+      agent.isStopped = true;
+      yield return new WaitForSeconds(sec);
+      currentState = EnemyState.Walking;
+      agent.isStopped = false;
+      SetNewWalkTarget();
    }
 }

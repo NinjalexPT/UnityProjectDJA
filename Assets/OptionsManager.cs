@@ -20,8 +20,8 @@ public class OptionsManager : MonoBehaviour
 
    public void OnChangeVolume()
    {
-      SoundManager.Instance.musicVolume = GameObject.Find("MusicSlider").GetComponent<Slider>().value * 100f;
-      SoundManager.Instance.sfxVolume = GameObject.Find("SFXSlider").GetComponent<Slider>().value * 100f;
+      SoundManager.Instance.musicVolume = GameObject.Find("MusicSlider").GetComponent<Slider>().value;
+      SoundManager.Instance.sfxVolume = GameObject.Find("SFXSlider").GetComponent<Slider>().value;
    }
 
    public void OnVSyncChange(bool isEnabled)

@@ -5,9 +5,16 @@ public class GameManager : MonoBehaviour
 {
    public static GameManager Instance;
 
+   [Header("Game Settings")]
+
    [SerializeField] private int coinCount;
    public bool fog;
    public bool gameOver;
+
+   [Header("Player Preferences")]
+   public string SFX_VOLUME_KEY = "SFXVolume";
+   public string MUSIC_VOLUME_KEY = "MusicVolume";
+   public string VSYNC_KEY = "VSYNCName";
 
    void Awake()
    {

@@ -74,7 +74,7 @@ public class RouletteTable : MachineController
          yield return null;
       }
 
-      bool success = Random.value > 0.25f;
+      bool success = Random.value > (color == 0 ? 18 / 37f : (color == 1 ? 18 / 37f : 1 / 37f));
       float finalZ = 0f;
 
       print("Roulette spin result: " + (success ? "Success" : "Failure"));

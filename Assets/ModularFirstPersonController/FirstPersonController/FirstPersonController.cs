@@ -208,13 +208,18 @@ public class FirstPersonController : MonoBehaviour
    {
       if (UIManager.isPauseScreenActive)
       {
+         print("Resume Game");
          UIManager.Instance.HidePauseScreen();
+
+         print(UIManager.Instance.gameObject.name);
       }
       else
       {
+         print("Pause Game");
          UIManager.Instance.ShowPauseScreen();
          Cursor.visible = true;
          Cursor.lockState = CursorLockMode.None;
+         print(UIManager.Instance.gameObject.name);
       }
 
    }

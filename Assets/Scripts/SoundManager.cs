@@ -9,11 +9,11 @@ public class SoundManager : MonoBehaviour
    public static SoundManager Instance;
 
    [Header("Audio Sources")]
-   [SerializeField] private AudioSource musicSource;
-   [SerializeField] private AudioSource sfxSource;
-   [SerializeField] private AudioSource movementSource;
-   [SerializeField] private AudioSource heartbeatSource;
-   [SerializeField] private AudioSource chaseSource;
+   public AudioSource musicSource;
+   public AudioSource sfxSource;
+   public AudioSource movementSource;
+   public AudioSource heartbeatSource;
+   public AudioSource chaseSource;
 
    [Header("Movement Sounds")]
    public AudioClip walkingSound;
@@ -33,6 +33,14 @@ public class SoundManager : MonoBehaviour
    [Header("Monster")]
    [SerializeField] private AudioClip jumpscareSound;
    [SerializeField] private AudioClip breathingSound;
+
+   [Header("Machines/Power Ups")]
+   public AudioClip winSound;
+   public AudioClip loseSound;
+   public AudioClip gunSound;
+
+   [Header("Music")]
+   [SerializeField] private AudioClip musicClip;
 
    private Transform player;
    private AudioClip currentMovementSound;
@@ -59,7 +67,6 @@ public class SoundManager : MonoBehaviour
    private void Start()
    {
       InitializeHeartbeat();
-      FindPlayer();
       heartbeatSource.volume = 0.3f;
       movementSource.volume = 0.7f;
       chaseSource.volume = 0.3f;
@@ -73,6 +80,7 @@ public class SoundManager : MonoBehaviour
             movementSource == null || heartbeatSource == null || chaseSource == null)
       {
          GetSources();
+         FindPlayer();
          return;
       }
 
@@ -206,7 +214,7 @@ public class SoundManager : MonoBehaviour
       }
    }
 
-   void InitializeHeartbeat()
+   public void InitializeHeartbeat()
    {
       heartbeatSource.clip = heartbeatSound;
       heartbeatSource.loop = true;
@@ -225,6 +233,7 @@ public class SoundManager : MonoBehaviour
       float normalizedDistance = Mathf.Clamp01(1 - (closestDistance / maxHeartbeatDistance));
       heartbeatSource.pitch = Mathf.Lerp(minHeartbeatPitch, maxHeartbeatPitch, normalizedDistance);
       heartbeatSource.volume = closestDistance > 30 ? 0 : Mathf.Lerp(0.3f, 1f, normalizedDistance) / 3;
+
    }
 
    public void PlayMovementSound(AudioClip clip)
@@ -264,6 +273,8 @@ public class SoundManager : MonoBehaviour
          if (musicSource != null)
          {
             musicSource.volume = musicVolume;
+            musicSource.clip = musicClip;
+            musicSource.loop = true;
             musicSource.Play();
          }
          else
@@ -296,7 +307,7 @@ public class SoundManager : MonoBehaviour
          {
             heartbeatSource.volume = sfxVolume;
             heartbeatSource.loop = true;
-            heartbeatSource.Play();
+            InitializeHeartbeat();
          }
          else
          {

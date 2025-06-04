@@ -9,6 +9,7 @@ public class PowerUpManager : MonoBehaviour
 
    private List<PowerUp> allPowerUps;
    private List<PowerUp> activePowerUps;
+   private Dictionary<PowerUpType, Coroutine> powerUpCoroutines;
 
    private GameObject gun;
 
@@ -24,13 +25,14 @@ public class PowerUpManager : MonoBehaviour
                 new PowerUp(PowerUpType.SpeedBoost,     10f),
                 new PowerUp(PowerUpType.DoubleCoins,    15f),
                 new PowerUp(PowerUpType.SeeEnemy,       20f),
-                new PowerUp(PowerUpType.Gun,            -1f), // infinito
+                new PowerUp(PowerUpType.Gun,            -1f),
                 new PowerUp(PowerUpType.EnemySpeedBoost,25f),
                 new PowerUp(PowerUpType.SpeedSlow,       5f)
             };
          activePowerUps = new List<PowerUp>();
+         powerUpCoroutines = new Dictionary<PowerUpType, Coroutine>();
 
-         GunController gc = FindFirstObjectByType<GunController>();
+         var gc = FindFirstObjectByType<GunController>();
          if (gc != null)
          {
             gun = gc.gameObject;
@@ -59,6 +61,15 @@ public class PowerUpManager : MonoBehaviour
                if (gun != null && !gun.activeSelf)
                   gun.SetActive(true);
                break;
+            case PowerUpType.EnemySpeedBoost:
+               EnemyController.speedModifier = 1.5f;
+               break;
+            case PowerUpType.DoubleCoins:
+               CoinManager.valueModifier = 2;
+               break;
+            case PowerUpType.SeeEnemy:
+               EnemyController.seeEnemy = true;
+               break;
          }
       }
    }
@@ -67,48 +78,94 @@ public class PowerUpManager : MonoBehaviour
    {
       int randomIndex = Random.Range(0, 4);
       ActivatePowerUp(allPowerUps[randomIndex].Type);
+      SoundManager.Instance.sfxSource.PlayOneShot(
+         SoundManager.Instance.winSound
+      );
    }
 
    public void ActivateRandomDebuff()
    {
       int randomIndex = Random.Range(4, 6);
       ActivatePowerUp(allPowerUps[randomIndex].Type);
+      SoundManager.Instance.sfxSource.PlayOneShot(
+         SoundManager.Instance.loseSound
+      );
    }
 
    public void ActivatePowerUp(PowerUpType type)
    {
-      PowerUp pw = allPowerUps.FirstOrDefault(p => p.Type == type);
+      var pw = allPowerUps.FirstOrDefault(p => p.Type == type);
       if (pw == null)
       {
-         Debug.LogWarning($"PowerUp {type} não existe em allPowerUps!");
+         Debug.LogWarning($"PowerUp {type} não existe!");
          return;
       }
 
-      if (activePowerUps.Any(p => p.Type == type))
-         activePowerUps.RemoveAll(p => p.Type == type);
-
+      activePowerUps.RemoveAll(p => p.Type == type);
       activePowerUps.Add(pw);
 
+      if (type == PowerUpType.Gun)
+      {
+         gun?.SetActive(true);
+         UIManager.Instance.SetPowerUpText(type,
+             $"{GunController.Instance.ammoSize}/" +
+             $"{GunController.Instance.ammoSize}"
+         );
+         return;
+      }
+
       if (pw.Duration > 0f)
-         StartCoroutine(PowerUpTimer(pw));
+      {
+         if (powerUpCoroutines.TryGetValue(type, out var old))
+         {
+            StopCoroutine(old);
+         }
+         var co = StartCoroutine(PowerUpTimer(pw));
+         powerUpCoroutines[type] = co;
+      }
    }
 
    public void DeactivatePowerUp(PowerUpType type)
    {
       activePowerUps.RemoveAll(p => p.Type == type);
 
-      if (type == PowerUpType.Gun && gun != null)
+      // pára corrotina se ainda estiver viva
+      if (powerUpCoroutines.TryGetValue(type, out var co))
       {
-         gun.SetActive(false);
+         StopCoroutine(co);
+         powerUpCoroutines.Remove(type);
+      }
+
+      UIManager.Instance.SetPowerUpText(type, string.Empty);
+
+      if (type == PowerUpType.Gun)
+      {
+         gun?.SetActive(false);
          GunController.Instance.ResetAmmo();
       }
-      if (type == PowerUpType.SpeedBoost || type == PowerUpType.SpeedSlow)
+      else if (type == PowerUpType.SpeedBoost ||
+               type == PowerUpType.SpeedSlow)
+      {
          FirstPersonController.Instance.speedModifier = 1f;
+      }
+      else if (type == PowerUpType.EnemySpeedBoost)
+      {
+         EnemyController.speedModifier = 1f;
+      }
+      else if (type == PowerUpType.SeeEnemy)
+      {
+         EnemyController.seeEnemy = false;
+      }
+      else if (type == PowerUpType.DoubleCoins)
+      {
+         CoinManager.valueModifier = 1;
+      }
    }
 
    private IEnumerator PowerUpTimer(PowerUp pw)
    {
       float timeLeft = pw.Duration;
+
       while (timeLeft > 0f)
       {
          UIManager.Instance.SetPowerUpText(
@@ -118,20 +175,21 @@ public class PowerUpManager : MonoBehaviour
          yield return new WaitForSeconds(0.1f);
          timeLeft -= 0.1f;
       }
+
       UIManager.Instance.SetPowerUpText(pw.Type, string.Empty);
+      powerUpCoroutines.Remove(pw.Type);
       DeactivatePowerUp(pw.Type);
    }
 
    public bool IsPowerUpActive(PowerUpType type)
    {
-      print("Checking if power-up is active: " + type);
       return activePowerUps.Any(p => p.Type == type);
    }
 
    public float GetPowerUpDuration(PowerUpType type)
    {
       PowerUp pw = activePowerUps.FirstOrDefault(p => p.Type == type);
-      return pw != null ? pw.Duration : 0f;
+      return pw != null ? pw.DurationLeft : 0f;
    }
 }
 
@@ -139,11 +197,13 @@ public class PowerUp
 {
    public PowerUpType Type { get; private set; }
    public float Duration { get; private set; }
+   public float DurationLeft { get; set; }
 
    public PowerUp(PowerUpType type, float duration)
    {
       Type = type;
       Duration = duration;
+      DurationLeft = duration;
    }
 }
 

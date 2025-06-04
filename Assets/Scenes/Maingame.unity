@@ -533,6 +533,9 @@ MonoBehaviour:
   audioSource: {fileID: 142265917}
   breathingSoundChance: 10
   currentState: 0
+  xrayMaterial: {fileID: 2100000, guid: a35db0f7b5ced43b1b06cdfb00ecf585, type: 2}
+  originalMats: []
+  rend: {fileID: 1340269724}
 --- !u!195 &142265915
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1828,7 +1831,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4459864850019384738, guid: 6bacecc4f3df9584198879c73a6b6c36, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4459864850019384738, guid: 6bacecc4f3df9584198879c73a6b6c36, type: 3}
       propertyPath: m_LocalPosition.y
@@ -4565,6 +4568,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 142265919}
   m_SourcePrefab: {fileID: 100100000, guid: c15f93451e281b24dbbaef13ea94f004, type: 3}
+--- !u!137 &1340269724 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8466598680286078823, guid: c15f93451e281b24dbbaef13ea94f004, type: 3}
+  m_PrefabInstance: {fileID: 1340269723}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1365933953
 GameObject:
   m_ObjectHideFlags: 0

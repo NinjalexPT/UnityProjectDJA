@@ -20,7 +20,7 @@ public class UIManager : MonoBehaviour
    [SerializeField] private GameObject gunGO;
    [SerializeField] private GameObject enemySpeedBoostGO;
    [SerializeField] private GameObject speedSlowGO;
-
+   public static bool IsGamePaused = false;
    public static bool isPauseScreenActive;
 
    void Awake()
@@ -38,32 +38,37 @@ public class UIManager : MonoBehaviour
 
    void Update()
    {
-      if (Input.GetKeyDown(KeyCode.Escape))
-      {
-         if (pauseScreen.activeSelf)
-         {
-            HidePauseScreen();
-         }
-         else
-         {
-            ShowPauseScreen();
-         }
-      }
       isPauseScreenActive = pauseScreen.activeSelf;
 
       if (PowerUpManager.Instance != null)
       {
          speedBoostGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.SpeedBoost));
+         // speedBoostGO.GetComponentInChildren<TextMeshProUGUI>().text =
+         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.SpeedBoost).ToString("F1") + "s";
+
          doubleCoinsGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.DoubleCoins));
+         // doubleCoinsGO.GetComponentInChildren<TextMeshProUGUI>().text =
+         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.DoubleCoins).ToString("F1") + "s";
+
          seeEnemyGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.SeeEnemy));
+         // seeEnemyGO.GetComponentInChildren<TextMeshProUGUI>().text =
+         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.SeeEnemy).ToString("F1") + "s";
+
          gunGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.Gun));
+
          enemySpeedBoostGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.EnemySpeedBoost));
+         // enemySpeedBoostGO.GetComponentInChildren<TextMeshProUGUI>().text =
+         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.EnemySpeedBoost).ToString("F1") + "s";
+
          speedSlowGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.SpeedSlow));
+         // speedSlowGO.GetComponentInChildren<TextMeshProUGUI>().text =
+         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.SpeedSlow).ToString("F1") + "s";
       }
    }
-
    public void ShowPauseScreen()
    {
+      isPauseScreenActive = true;
+      print("ShowPauseScreen called");
       FindFirstObjectByType<FirstPersonController>().cameraCanMove = false;
       pauseScreen.SetActive(true);
       Time.timeScale = 0f;
@@ -75,6 +80,8 @@ public class UIManager : MonoBehaviour
    }
    public void HidePauseScreen()
    {
+      isPauseScreenActive = false;
+      print("HidePauseScreen called");
       FindFirstObjectByType<FirstPersonController>().cameraCanMove = true;
       Time.timeScale = 1f;
       pauseScreen.SetActive(false);
