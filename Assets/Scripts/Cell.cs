@@ -13,7 +13,7 @@ public class Cell
     public int WallRight;
     public int X;
     public int Y;
-    
+
     public Cell(int x, int y)
     {
         X = x;

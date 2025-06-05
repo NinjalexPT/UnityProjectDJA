@@ -2,7 +2,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
-public static class PathFinder 
+public static class PathFinder
 {
     public static bool IsReachable(int startRow, int startCol, int targetRow, int targetCol)
     {
@@ -109,7 +109,7 @@ public static class PathFinder
         var cells = new List<Cell>() { GameData.Maze[0, GameData.EntrancePoint] };
         GameData.Maze[0, GameData.EntrancePoint].Visited = true;
         // Add the adjacent cells in a loop
-        while(cells.Count < maxCells) 
+        while (cells.Count < maxCells)
         {
             for (int i = 0; i < GameData.MazeRows; i++)
             {
@@ -154,6 +154,6 @@ public static class PathFinder
                 break;
             }
             cellsCount = cells.Count;
-        }   
+        }
     }
 }

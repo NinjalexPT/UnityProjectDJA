@@ -3,74 +3,83 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-   public static GameManager Instance;
+    public static GameManager Instance;
 
-   [Header("Game Settings")]
+    [Header("Game Settings")]
 
-   [SerializeField] private int coinCount;
-   public bool fog;
-   public bool gameOver;
+    [SerializeField] private int coinCount;
+    public bool fog;
+    public bool gameOver;
 
-   [Header("Player Preferences")]
-   public string SFX_VOLUME_KEY = "SFXVolume";
-   public string MUSIC_VOLUME_KEY = "MusicVolume";
-   public string VSYNC_KEY = "VSYNCName";
+    [SerializeField] private int coinsToWin = 200;
 
-   void Awake()
-   {
-      if (Instance == null)
-      {
-         Instance = this;
-         DontDestroyOnLoad(gameObject);
-      }
-      else
-      {
-         Destroy(gameObject);
-      }
-   }
 
-   void Start()
-   {
+    [Header("Player Preferences")]
+    public string SFX_VOLUME_KEY = "SFXVolume";
+    public string MUSIC_VOLUME_KEY = "MusicVolume";
+    public string VSYNC_KEY = "VSYNCName";
 
-      if (UIManager.Instance != null)
-         UIManager.Instance.UpdateCoinCount(coinCount);
-   }
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
-   public void AddCoins(int amount)
-   {
-      coinCount += amount;
-      if (UIManager.Instance != null)
-         UIManager.Instance.UpdateCoinCount(coinCount);
-   }
+    void Start()
+    {
 
-   public int CoinCount()
-   {
-      return coinCount;
-   }
+        if (UIManager.Instance != null)
+            UIManager.Instance.UpdateCoinCount(coinCount);
+    }
 
-   public void PlayerDied()
-   {
-      gameOver = true;
-      var playerController = FindObjectOfType<FirstPersonController>();
+    public void AddCoins(int amount)
+    {
+        coinCount += amount;
+        if (UIManager.Instance != null)
+            UIManager.Instance.UpdateCoinCount(coinCount);
+    }
 
-      if (UIManager.Instance != null)
-      {
-         UIManager.Instance.ShowDeathScreen();
-         UIManager.Instance.HideInteractText();
-         UIManager.Instance.SetCoinObjectActive(false);
-         UIManager.Instance.SetPlayerUIActive(false);
-      }
+    public int CoinCount()
+    {
+        return coinCount;
+    }
 
-      Cursor.visible = true;
-      Cursor.lockState = CursorLockMode.None;
+    public int CoinsToWin()
+    {
+        return coinsToWin;
+    }
 
-      Destroy(playerController);
-      SoundManager.Instance.StopMovementSound();
-   }
 
-   public void RestartGame()
-   {
-      SceneManager.LoadScene(SceneManager
-        .GetActiveScene().buildIndex);
-   }
+    public void PlayerDied()
+    {
+        gameOver = true;
+        var playerController = FindFirstObjectByType<FirstPersonController>();
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowDeathScreen();
+            UIManager.Instance.HideInteractText();
+            UIManager.Instance.SetCoinObjectActive(false);
+            UIManager.Instance.SetPlayerUIActive(false);
+        }
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        Destroy(playerController);
+        SoundManager.Instance.StopMovementSound();
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager
+          .GetActiveScene().buildIndex);
+    }
 }

@@ -1087,6 +1087,7 @@ MonoBehaviour:
   coinCount: 1000
   fog: 1
   gameOver: 0
+  coinsToWin: 200
   SFX_VOLUME_KEY: SFXVolume
   MUSIC_VOLUME_KEY: MusicVolume
   VSYNC_KEY: VSYNCName
