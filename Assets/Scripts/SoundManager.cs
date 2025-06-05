@@ -67,10 +67,10 @@ public class SoundManager : MonoBehaviour
    private void Start()
    {
       InitializeHeartbeat();
-      heartbeatSource.volume = 0.3f;
-      movementSource.volume = 0.7f;
-      chaseSource.volume = 0.3f;
       sfxSource.volume = 0.5f;
+      heartbeatSource.volume = 0.3f * sfxSource.volume;
+      movementSource.volume = 0.7f * sfxSource.volume;
+      chaseSource.volume = 0.3f * sfxSource.volume;
    }
 
    private void Update()

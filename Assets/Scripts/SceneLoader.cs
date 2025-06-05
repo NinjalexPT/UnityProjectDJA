@@ -70,6 +70,8 @@ public class SceneLoader : MonoBehaviour
 
    public void RestartGame()
    {
+      GameManager.Instance.gameOver = false;
+      print($"[RestartGame] restarting game, game over = {GameManager.Instance.gameOver}");
       StartCoroutine(Transitioning(ReloadScene));
    }
 

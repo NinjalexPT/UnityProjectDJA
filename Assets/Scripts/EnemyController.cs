@@ -14,18 +14,27 @@ public class EnemyController : MonoBehaviour
 
    [Header("Navigation Settings")]
    [SerializeField] private NavMeshAgent agent;
-   [SerializeField] private float walkingSpeed = 3f;
+   [Space(10)]
+   [SerializeField] private float walkingSpeed = 4.5f;
+   [SerializeField] private float investigationSpeed = 3f;
    public static float speedModifier = 1f;
    [SerializeField] private float chasingSpeed = 6f;
-   [SerializeField] private float detectionRadius = 30f;
-   [SerializeField] private float deathDistance = 1f;
+   [SerializeField] private float walkRadius = 50f;
+   [SerializeField] private float investigationRadius = 30f;
+   [SerializeField] private float leaveChaseRadius = 20f;
+   [SerializeField] private float deathDistance = 2f;
+   [SerializeField] private float timeBeingDeath = 15f;
+   [SerializeField] private float deathTimer;
+   [Space(10)]
+   [SerializeField] private Vector3 currentTarget;
    [SerializeField] private LayerMask obstacleLayers;
+   [SerializeField] private float distanceToPlayer;
+
 
    [Header("Behavior Tuning")]
    [SerializeField] private float maxInvestigationTime = 10f;
    [SerializeField] private float sightCheckInterval = 0.2f;
-   [SerializeField] private float walkRadius = 20f;
-   [SerializeField] private float pathUpdateDelay = 2f; // Novo parâmetro
+   [SerializeField] private float pathUpdateDelay = 2f;
 
    [Header("Sound System")]
    [SerializeField] private AudioSource audioSource;
@@ -33,12 +42,8 @@ public class EnemyController : MonoBehaviour
 
    private Transform player;
    public EnemyState currentState;
-   private Vector3 investigationTarget;
-   private float investigationTimer;
    private float sightCheckTimer;
    private float soundCheckTimer;
-   private Vector3 currentWalkTarget;
-   private float lastPathUpdateTime; // Controle de tempo
 
    [Header("X-Ray Vision")]
    public static bool seeEnemy = false;
@@ -47,41 +52,127 @@ public class EnemyController : MonoBehaviour
    [SerializeField] private Material[] originalMats;
    [SerializeField] private Renderer rend;
 
-   private Animator animator;
+   [SerializeField] private Animator animator;
 
    void Awake()
    {
-      // Guarda materiais originais para o XRay
       originalMats = rend.materials;
    }
 
    void Start()
    {
       player = GameObject.FindGameObjectWithTag("Player").transform;
-      currentState = EnemyState.Walking;
-      agent.speed = walkingSpeed * speedModifier;
+      ChangeCurrentState(EnemyState.Walking);
+
       agent.autoBraking = true;
       agent.stoppingDistance = 1f;
+
       animator = GetComponent<Animator>();
-      SetNewWalkTarget();
+   }
+
+   void SetSpeed(float speed)
+   {
+      agent.speed = speed * speedModifier;
+      print($"[EnemySpeed] Current speed = {agent.speed}");
+
+   }
+
+   void SetTarget(bool? walk = null)
+   {
+      // print($"[SetTarget] Called with walk = {walk}");
+
+      // if (walk == false || walk == null)
+      // {
+      //    currentTarget = player.position;
+      //    print($"[SetTarget] New currentTarget: {currentTarget}");
+      //    return;
+      // }
+
+      // for (int attempts = 0; attempts < 25; attempts++)
+      // {
+      //    Vector3 randomDirection = Random.insideUnitSphere * walkRadius;
+      //    randomDirection += player.position;
+      //    randomDirection.y = player.position.y;
+
+      //    if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, walkRadius, NavMesh.AllAreas))
+      //    {
+      //       if (Vector3.Distance(transform.position, hit.position) > 5f)
+      //       {
+      //          currentTarget = hit.position;
+      //          print($"[SetTarget] Found valid walking target: {currentTarget}");
+      //          return;
+      //       }
+      //    }
+      // }
+
+      // Vector3 fallback = player.position + (Random.insideUnitSphere * 20f);
+      // fallback.y = player.position.y;
+      // if (NavMesh.SamplePosition(fallback, out NavMeshHit fallbackHit, 20f, NavMesh.AllAreas))
+      // {
+      //    currentTarget = fallbackHit.position;
+      // }
+      // else
+      // {
+      //    currentTarget = player.position; // último recurso
+      // }
+
+      // print($"[SetTarget] Using fallback target: {currentTarget}");
+
+      currentTarget = player.position;
    }
 
    void Update()
    {
-      if (GameManager.Instance.gameOver) return;
+      if (GameManager.Instance.gameOver) { animator.SetTrigger("ToIdle"); return; }
 
-      float distanceToPlayer = Vector3
+      distanceToPlayer = Vector3
           .Distance(transform.position, player.position);
 
-      HandleDeathCondition(distanceToPlayer);
-      UpdateStateMachine(distanceToPlayer);
-      HandleBreathingSounds(distanceToPlayer);
+      print($"[EnemyController] Distance to player = {distanceToPlayer}");
+      print($"[EnemyController] Death distance = {deathDistance}");
 
+      if (distanceToPlayer < deathDistance && currentState != EnemyState.Dead)
+      {
+         print($"[EnemyController] Killing player");
+         KillPlayer();
+      }
+
+      agent.SetDestination(player.position);
+
+      HandleBreathingSounds();
+      HandleCurrentState();
+
+      if (animator == null) animator = GetComponent<Animator>();
       audioSource.volume = SoundManager.Instance.sfxVolume;
 
-      // X-Ray toggle
-      if (seeEnemy) SetXRay(true);
+      if (seeEnemy && (!HasClearLineOfSight() || distanceToPlayer > 10)) SetXRay(true);
       else SetXRay(false);
+   }
+
+   void KillPlayer()
+   {
+      GameManager.Instance.PlayerDied();
+      SoundManager.Instance.PlayJumpscareSound(audioSource);
+   }
+
+   void HandleCurrentState()
+   {
+      switch (currentState)
+      {
+         case EnemyState.Walking:
+            HandleWalkingState();
+            break;
+         case EnemyState.Investigating:
+            HandleInvestigationState();
+            break;
+         case EnemyState.Chasing:
+            HandleChaseState();
+            break;
+         case EnemyState.Dead:
+            HandleDeathState();
+            break;
+
+      }
    }
 
    public void SetXRay(bool on)
@@ -99,10 +190,10 @@ public class EnemyController : MonoBehaviour
       }
    }
 
-   void HandleBreathingSounds(float distance)
+   void HandleBreathingSounds()
    {
       if (currentState == EnemyState.Walking &&
-          distance > detectionRadius)
+          distanceToPlayer > walkRadius)
       {
          soundCheckTimer += Time.deltaTime;
          if (soundCheckTimer > 1f)
@@ -115,81 +206,92 @@ public class EnemyController : MonoBehaviour
       }
    }
 
-   void UpdateStateMachine(float distanceToPlayer)
+   bool ReachedTarget()
    {
-      switch (currentState)
-      {
-         case EnemyState.Walking:
-            HandleWalkingState(distanceToPlayer);
-            break;
-         case EnemyState.Investigating:
-            HandleInvestigationState(distanceToPlayer);
-            break;
-         case EnemyState.Chasing:
-            HandleChaseState(distanceToPlayer);
-            break;
-         case EnemyState.Dead:
-            DieTemporarily(15f);
-            break;
-      }
+      float distance = Vector3.Distance(transform.position, currentTarget);
+      print($"[ReachedTarget] Distance to currentTarget: {distance}, currentTarget: {currentTarget}");
+      return distance < 1f;
    }
 
-   void HandleWalkingState(float distanceToPlayer)
+   void HandleWalkingState()
    {
-      if (distanceToPlayer <= detectionRadius)
-      {
-         if (HasClearLineOfSight())
-         {
-            StartChasing();
-            return;
-         }
-         else if (distanceToPlayer < detectionRadius * 0.5f)
-         {
-            StartInvestigating(player.position);
-         }
-      }
+      SetSpeed(walkingSpeed);
 
-      if (agent.pathStatus == NavMeshPathStatus.PathComplete &&
-          agent.remainingDistance <= agent.stoppingDistance &&
-          Time.time - lastPathUpdateTime > pathUpdateDelay)
-      {
-         SetNewWalkTarget();
-         lastPathUpdateTime = Time.time;
-      }
-   }
+      print($"[HandleWalking] distanceToPlayer = {distanceToPlayer}, investigationRadius = {investigationRadius}");
 
-   void HandleInvestigationState(float distanceToPlayer)
-   {
-      investigationTimer -= Time.deltaTime;
-
-      if (HasClearLineOfSight())
+      if (distanceToPlayer <= investigationRadius)
       {
-         StartChasing();
+         print("[EnemyController] Changing from Walking into Investigating");
+         ChangeCurrentState(EnemyState.Investigating);
          return;
       }
 
-      if (distanceToPlayer <
-          Vector3.Distance(transform.position,
-                            investigationTarget) * 0.8f)
+      if (ReachedTarget())
       {
-         investigationTarget = player.position;
-         agent.SetDestination(investigationTarget);
+         print("[EnemyController] Reached Target in Walking, creating new target position");
+         SetTarget(true);
       }
-
-      if (agent.remainingDistance <= agent.stoppingDistance ||
-          investigationTimer <= 0 ||
-          distanceToPlayer > detectionRadius)
+      else
       {
-         ReturnToWalking();
+         print($"[HandleWalking] NOT reached target. Distance to target: {Vector3.Distance(transform.position, currentTarget)}");
       }
    }
 
-   void HandleChaseState(float distanceToPlayer)
+   void HandleInvestigationState()
    {
-      agent.SetDestination(player.position);
+      SetSpeed(investigationSpeed);
 
-      if (distanceToPlayer > detectionRadius)
-         ReturnToWalking();
+      print($"[HandleInvestigation] distanceToPlayer = {distanceToPlayer}, walkRadius = {walkRadius}");
+      print($"[HandleInvestigation] HasClearLineOfSight = {HasClearLineOfSight()}");
+      print($"[HandleInvestigation] ReachedTarget = {ReachedTarget()}");
+
+      if (HasClearLineOfSight())
+      {
+         print("[EnemyController] Has line of sight, changing to Chasing");
+         ChangeCurrentState(EnemyState.Chasing);
+         return;
+      }
+
+      if (distanceToPlayer >= investigationRadius)
+      {
+         print("[EnemyController] Player too far, changing back to Walking");
+         ChangeCurrentState(EnemyState.Walking);
+         return;
+      }
+
+      if (ReachedTarget() && distanceToPlayer > 2f)
+      {
+         print("[EnemyController] Reached target in Investigation, setting new target");
+         SetTarget(false);
+      }
+   }
+
+   void HandleChaseState()
+   {
+      currentTarget = player.position;
+      if (distanceToPlayer > leaveChaseRadius)
+      {
+         ChangeCurrentState(EnemyState.Walking);
+         return;
+      }
+   }
+
+   public void Die()
+   {
+      ChangeCurrentState(EnemyState.Dead);
+      deathTimer = Time.time;
+   }
+
+   void HandleDeathState()
+   {
+      agent.isStopped = true;
+      if (Time.time - deathTimer > timeBeingDeath)
+      {
+         agent.isStopped = false;
+         currentState = EnemyState.Walking;
+         animator.SetTrigger("ToWalk");
+         return;
+      }
    }
 
    bool HasClearLineOfSight()
@@ -204,7 +306,6 @@ public class EnemyController : MonoBehaviour
           Vector3.Distance(transform.position,
                            player.position);
 
-      // testamos colisão com layers de obstáculo
       if (!Physics.Raycast(transform.position,
                            direction.normalized,
                            out RaycastHit hit,
@@ -214,97 +315,40 @@ public class EnemyController : MonoBehaviour
          return true;
       }
 
-      Debug.DrawRay(transform.position,
-                    direction,
-                    Color.red,
-                    0.5f);
       return hit.collider.CompareTag("Player");
    }
 
-   void StartChasing()
+   void ChangeCurrentState(EnemyState state)
    {
-      currentState = EnemyState.Chasing;
-      agent.speed = chasingSpeed;
-      agent.SetDestination(player.position);
-      animator.SetTrigger("ToChase");
-   }
+      currentState = state;
 
-   void StartInvestigating(Vector3 position)
-   {
-      currentState = EnemyState.Investigating;
-      investigationTarget = position;
-      agent.SetDestination(position);
-      investigationTimer = maxInvestigationTime;
-      animator.SetTrigger("ToIdle");
-   }
-
-   void ReturnToWalking()
-   {
-      currentState = EnemyState.Walking;
-      agent.speed = walkingSpeed;
-      SetNewWalkTarget();
-      animator.SetTrigger("ToWalk");
-   }
-
-   void SetNewWalkTarget()
-   {
-      Vector3 randomDirection =
-          Random.insideUnitSphere * walkRadius;
-      randomDirection += player.position;
-      randomDirection.y = player.position.y;
-
-      int attempts = 0;
-      bool validPath = false;
-
-      while (attempts < 5 && !validPath)
+      switch (currentState)
       {
-         if (NavMesh.SamplePosition(randomDirection,
-                                    out NavMeshHit hit,
-                                    walkRadius,
-                                    NavMesh.AllAreas))
-         {
-            currentWalkTarget = hit.position;
-            agent.SetDestination(currentWalkTarget);
-            if (agent.pathPending) return;
-            validPath =
-                agent.pathStatus ==
-                NavMeshPathStatus.PathComplete;
-         }
-         attempts++;
+         case EnemyState.Walking:
+            SetTarget(true);
+            animator.SetTrigger("ToWalk");
+            SetSpeed(walkingSpeed);
+            print("[EnemyState] Changed state to Walking");
+            break;
+         case EnemyState.Investigating:
+            SetTarget(false);
+            SetSpeed(investigationSpeed);
+            print("[EnemyState] Changed state to Investigating");
+            break;
+         case EnemyState.Chasing:
+            SetTarget(false);
+            animator.SetTrigger("ToChase");
+            print("[EnemyState] Changed state to Chasing");
+            SetSpeed(chasingSpeed);
+            break;
+         case EnemyState.Dead:
+            SetTarget(false);
+            animator.SetTrigger("ToDie");
+            print("[EnemyState] Changed state to Dead");
+            SetSpeed(0);
+            break;
       }
 
-      if (!validPath)
-         Debug.LogWarning("Falha ao encontrar caminho válido");
    }
 
-   void HandleDeathCondition(float distance)
-   {
-      // só prenche o estado de Dead e dispara animação uma vez
-      if (currentState != EnemyState.Dead &&
-          distance < deathDistance)
-      {
-         currentState = EnemyState.Dead;
-         agent.isStopped = true;
-         // dispara a animação de morte — crie no Animator
-         // um Trigger chamado "ToDead"
-         animator.SetTrigger("ToDie");
-         SoundManager.Instance
-             .PlayJumpscareSound(audioSource);
-         GameManager.Instance.PlayerDied();
-      }
-   }
-
-   public void DieTemporarily(float sec)
-   {
-      StartCoroutine(DieCoroutine(sec));
-   }
-
-   private IEnumerator DieCoroutine(float sec)
-   {
-      agent.isStopped = true;
-      yield return new WaitForSeconds(sec);
-      currentState = EnemyState.Walking;
-      agent.isStopped = false;
-      SetNewWalkTarget();
-   }
 }

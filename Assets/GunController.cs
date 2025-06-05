@@ -22,7 +22,6 @@ public class GunController : MonoBehaviour
       if (Instance == null)
       {
          Instance = this;
-         DontDestroyOnLoad(gameObject);
       }
       else
       {
@@ -93,7 +92,7 @@ public class GunController : MonoBehaviour
             EnemyController enemy = hit.collider.GetComponent<EnemyController>();
             if (enemy != null)
             {
-               enemy.currentState = EnemyController.EnemyState.Dead;
+               enemy.Die();
             }
          }
       }

@@ -226,6 +226,10 @@ public class FirstPersonController : MonoBehaviour
 
    void Start()
    {
+
+      GameManager.Instance.gameOver = false;
+      PowerUpManager.Instance.DeactivatePowerUp(PowerUpType.Gun);
+
       if (lockCursor)
       {
          Cursor.lockState = CursorLockMode.Locked;

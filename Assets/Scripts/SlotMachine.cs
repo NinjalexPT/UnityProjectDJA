@@ -15,7 +15,6 @@ public class SlotMachine : MachineController
 
    void Start()
    {
-      // Store initial rotations (90, 0, 0)
       initialRotations = new Quaternion[mainCylinders.Length];
       for (int i = 0; i < mainCylinders.Length; i++)
       {
@@ -28,7 +27,7 @@ public class SlotMachine : MachineController
       if (GameManager.Instance.CoinCount() < RequiredCoins) return;
       if (!canDiscountCoins) return;
       GameManager.Instance.AddCoins(-RequiredCoins);
-      MachineController.canDiscountCoins = false;
+      canDiscountCoins = false;
       PullLever();
    }
 
@@ -59,12 +58,13 @@ public class SlotMachine : MachineController
       {
          if (isSuccess)
          {
-            // Set the cylinder to the success position
             initialRotations[i] = Quaternion.Euler(initialRotations[i].x + 360 / 12 * PowerUpTypeIndex, initialRotations[i].y, initialRotations[i].z);
+            PowerUpManager.Instance.ActivateRandomPowerUp();
             mainCylinders[i].transform.localRotation = initialRotations[i];
          }
          else
          {
+            PowerUpManager.Instance.ActivateRandomDebuff();
             initialRotations[i] = Quaternion.Euler((float)(initialRotations[i].x + 360 / 12 * Math.Floor(UnityEngine.Random.Range(0.0f, 12.0f))), initialRotations[i].y, initialRotations[i].z);
             mainCylinders[i].transform.localRotation = initialRotations[i];
          }
