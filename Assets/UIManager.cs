@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
@@ -20,6 +21,10 @@ public class UIManager : MonoBehaviour
    [SerializeField] private GameObject gunGO;
    [SerializeField] private GameObject enemySpeedBoostGO;
    [SerializeField] private GameObject speedSlowGO;
+
+   [Header("Finish Game UI")]
+   [SerializeField] private GameObject keyGO;
+
    public static bool IsGamePaused = false;
    public static bool isPauseScreenActive;
 
@@ -167,5 +172,17 @@ public class UIManager : MonoBehaviour
    public void SetCoinObjectActive(bool active)
    {
       if (coinObject != null) coinObject.SetActive(active);
+   }
+
+   public void ShowKeyUI()
+   {
+      StartCoroutine(KeyUi());
+   }
+
+   IEnumerator KeyUi()
+   {
+      keyGO.SetActive(true);
+      yield return new WaitForSeconds(5f);
+      keyGO.SetActive(false);
    }
 }

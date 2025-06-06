@@ -378,6 +378,7 @@ MonoBehaviour:
   movementSource: {fileID: 0}
   heartbeatSource: {fileID: 0}
   chaseSource: {fileID: 0}
+  doorSource: {fileID: 0}
   walkingSound: {fileID: 8300000, guid: 2869d0d910a5f465cb3e8cd774226136, type: 3}
   runningSound: {fileID: 8300000, guid: 063125742c1ef47f991bc639c1ebe623, type: 3}
   chasingSound: {fileID: 8300000, guid: 11c8c77fa6cca445895aa84699433ae4, type: 3}
@@ -392,6 +393,7 @@ MonoBehaviour:
   winSound: {fileID: 8300000, guid: 09719fdd32f454037b70f6bb9a0cc898, type: 3}
   loseSound: {fileID: 8300000, guid: 6e0563407ce9f4ad49f04c9b87d7c9e9, type: 3}
   gunSound: {fileID: 8300000, guid: 575c78a282621430eb7f77a68c8864d0, type: 3}
+  doorSound: {fileID: 8300000, guid: a49ed38d5152b4f35bd19c5980108029, type: 3}
   musicClip: {fileID: 8300000, guid: 1c1069c2ccb8c4e6582b1593da5734e9, type: 3}
   musicVolume: 50
   sfxVolume: 50
@@ -1084,13 +1086,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5901ffa6eca71453bbabc5747b5ec732, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinCount: 1000
+  coinCount: 0
   fog: 1
   gameOver: 0
-  coinsToWin: 200
   SFX_VOLUME_KEY: SFXVolume
   MUSIC_VOLUME_KEY: MusicVolume
   VSYNC_KEY: VSYNCName
+  chanceForKey: 5
 --- !u!4 &1494128388
 Transform:
   m_ObjectHideFlags: 0
