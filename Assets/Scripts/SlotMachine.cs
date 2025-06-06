@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using NUnit.Framework;
 using UnityEngine;
 
 public class SlotMachine : MachineController
@@ -64,16 +65,16 @@ public class SlotMachine : MachineController
          if (isSuccess)
          {
             initialRotations[i] = Quaternion.Euler(initialRotations[i].x + 360 / 12 * PowerUpTypeIndex, initialRotations[i].y, initialRotations[i].z);
-            PowerUpManager.Instance.ActivateRandomPowerUp();
             mainCylinders[i].transform.localRotation = initialRotations[i];
          }
          else
          {
-            PowerUpManager.Instance.ActivateRandomDebuff();
             initialRotations[i] = Quaternion.Euler((float)(initialRotations[i].x + 360 / 12 * Math.Floor(UnityEngine.Random.Range(0.0f, 12.0f))), initialRotations[i].y, initialRotations[i].z);
             mainCylinders[i].transform.localRotation = initialRotations[i];
          }
       }
+      if (isSuccess) PowerUpManager.Instance.ActivateRandomPowerUp();
+      else PowerUpManager.Instance.ActivateRandomDebuff();
       MachineController.canDiscountCoins = true;
    }
 }
