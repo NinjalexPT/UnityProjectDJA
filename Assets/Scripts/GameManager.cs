@@ -9,12 +9,12 @@ public class GameManager : MonoBehaviour
    [Header("Game Settings")]
 
    [SerializeField] private int coinCount;
-   public bool fog;
+   private int startingCoinCount;
    public bool gameOver;
 
    public bool skipIntro = false;
    public float coinReappearingTimer = 30f;
-   public int chanceForKey = 5; // chance out of 100
+   public int chanceForKey = 5;
 
    [Space]
    [Header("Cached Managers / Controllers")]
@@ -49,6 +49,8 @@ public class GameManager : MonoBehaviour
       {
          Destroy(gameObject);
       }
+
+      startingCoinCount = coinCount;
    }
 
    void Start()
@@ -71,8 +73,12 @@ public class GameManager : MonoBehaviour
 
    public void PlayerDied()
    {
+
+      Destroy(GameManager.Instance.enemyController);
+
       gameOver = true;
       var playerController = FindFirstObjectByType<FirstPersonController>();
+      coinCount = startingCoinCount;
 
       if (GameManager.Instance.uIManager != null)
       {

@@ -14,8 +14,8 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_Fog: 1
+  m_FogColor: {r: 0.8867924, g: 0.75711995, b: 0.75711995, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.01
   m_LinearFogStart: 0
@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: ae90dd4c9fe0f4057bd900786f2c6cb0, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -1088,14 +1088,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinCount: 10000
-  fog: 1
   gameOver: 0
   skipIntro: 1
   coinReappearingTimer: 30
-  SFX_VOLUME_KEY: SFXVolume
-  MUSIC_VOLUME_KEY: MusicVolume
-  VSYNC_KEY: VSYNCName
   chanceForKey: 5
+  gunController: {fileID: 0}
+  firstPersonController: {fileID: 0}
+  enemyController: {fileID: 0}
+  powerUpManager: {fileID: 0}
+  uIManager: {fileID: 0}
+  finishController: {fileID: 0}
 --- !u!4 &1494128388
 Transform:
   m_ObjectHideFlags: 0

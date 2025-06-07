@@ -145,7 +145,8 @@ public class FirstPersonController : MonoBehaviour
 
    private void Awake()
    {
-      RenderSettings.fog = GameManager.Instance.fog;
+
+      RenderSettings.fog = true;
 
       rb = GetComponent<Rigidbody>();
 
@@ -415,7 +416,7 @@ public class FirstPersonController : MonoBehaviour
       #region Jump
 
       // Gets input and calls jump method
-      if (enableJump && Input.GetKeyDown(jumpKey) && isGrounded)
+      if (!UIManager.IsGamePaused && enableJump && Input.GetKeyDown(jumpKey) && isGrounded)
       {
          Jump();
       }
