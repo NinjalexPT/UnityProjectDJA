@@ -1087,9 +1087,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5901ffa6eca71453bbabc5747b5ec732, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinCount: 10000
+  coinCount: 0
   gameOver: 0
-  skipIntro: 1
+  skipIntro: 0
   coinReappearingTimer: 30
   chanceForKey: 5
   gunController: {fileID: 0}

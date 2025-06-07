@@ -31,6 +31,10 @@ public class SceneLoader : MonoBehaviour
    {
       SceneManager.LoadScene(GameManager.Instance.skipIntro ? "MainGame" : "FirstRoom");
    }
+   public void FinishGame()
+   {
+      SceneManager.LoadScene("EndScene");
+   }
    public void StartMaze()
    {
       SceneManager.LoadScene("MainGame");
@@ -60,6 +64,10 @@ public class SceneLoader : MonoBehaviour
    public void IntoGame()
    {
       StartCoroutine(Transitioning(StartGame));
+   }
+   public void IntoEnd()
+   {
+      StartCoroutine(Transitioning(FinishGame));
    }
    public void IntoMaze()
    {

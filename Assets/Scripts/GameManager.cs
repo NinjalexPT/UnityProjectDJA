@@ -51,6 +51,9 @@ public class GameManager : MonoBehaviour
       }
 
       startingCoinCount = coinCount;
+
+      Cursor.lockState = CursorLockMode.None;
+      Cursor.visible = true;
    }
 
    void Start()

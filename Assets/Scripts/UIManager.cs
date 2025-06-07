@@ -29,6 +29,7 @@ public class UIManager : MonoBehaviour
    void Update()
    {
       isPauseScreenActive = pauseScreen.activeSelf;
+      IsGamePaused = isPauseScreenActive;
 
       if (GameManager.Instance.powerUpManager != null)
       {
