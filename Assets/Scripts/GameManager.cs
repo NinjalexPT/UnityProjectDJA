@@ -14,13 +14,29 @@ public class GameManager : MonoBehaviour
 
    public bool skipIntro = false;
    public float coinReappearingTimer = 30f;
-
-   [Header("Player Preferences")]
-   public string SFX_VOLUME_KEY = "SFXVolume";
-   public string MUSIC_VOLUME_KEY = "MusicVolume";
-   public string VSYNC_KEY = "VSYNCName";
-
    public int chanceForKey = 5; // chance out of 100
+
+   [Space]
+   [Header("Cached Managers / Controllers")]
+   public GunController gunController;
+   public FirstPersonController firstPersonController;
+   public EnemyController enemyController;
+   public PowerUpManager powerUpManager;
+   public UIManager uIManager;
+   public FinishController finishController;
+
+   public void FetchCachedControllers()
+   {
+      print("fetching cached controllers");
+
+      gunController = FindFirstObjectByType<GunController>();
+      firstPersonController = FindFirstObjectByType<FirstPersonController>();
+      enemyController = FindFirstObjectByType<EnemyController>();
+      powerUpManager = FindFirstObjectByType<PowerUpManager>();
+      uIManager = FindFirstObjectByType<UIManager>();
+      finishController = FindFirstObjectByType<FinishController>();
+
+   }
 
    void Awake()
    {
@@ -37,15 +53,15 @@ public class GameManager : MonoBehaviour
 
    void Start()
    {
-      if (UIManager.Instance != null)
-         UIManager.Instance.UpdateCoinCount(coinCount);
+      if (GameManager.Instance.uIManager != null)
+         GameManager.Instance.uIManager.UpdateCoinCount(coinCount);
    }
 
    public void AddCoins(int amount)
    {
       coinCount += amount;
-      if (UIManager.Instance != null)
-         UIManager.Instance.UpdateCoinCount(coinCount);
+      if (GameManager.Instance.uIManager != null)
+         GameManager.Instance.uIManager.UpdateCoinCount(coinCount);
    }
 
    public int CoinCount()
@@ -58,12 +74,12 @@ public class GameManager : MonoBehaviour
       gameOver = true;
       var playerController = FindFirstObjectByType<FirstPersonController>();
 
-      if (UIManager.Instance != null)
+      if (GameManager.Instance.uIManager != null)
       {
-         UIManager.Instance.ShowDeathScreen();
-         UIManager.Instance.HideInteractText();
-         UIManager.Instance.SetCoinObjectActive(false);
-         UIManager.Instance.SetPlayerUIActive(false);
+         GameManager.Instance.uIManager.ShowDeathScreen();
+         GameManager.Instance.uIManager.HideInteractText();
+         GameManager.Instance.uIManager.SetCoinObjectActive(false);
+         GameManager.Instance.uIManager.SetPlayerUIActive(false);
       }
 
       Cursor.visible = true;

@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class PowerUpManager : MonoBehaviour
 {
-   public static PowerUpManager Instance { get; private set; }
 
    public List<PowerUp> allPowerUps;
    public List<PowerUp> activePowerUps;
@@ -15,30 +14,21 @@ public class PowerUpManager : MonoBehaviour
 
    private void Awake()
    {
-      if (Instance == null)
-      {
-         Instance = this;
-         DontDestroyOnLoad(gameObject);
 
-         allPowerUps = new List<PowerUp>()
-            {
-                new PowerUp(PowerUpType.SpeedBoost,     10f),
-                new PowerUp(PowerUpType.DoubleCoins,    15f),
-                new PowerUp(PowerUpType.SeeEnemy,       20f),
-                new PowerUp(PowerUpType.Gun,            -1f),
-                new PowerUp(PowerUpType.EnemySpeedBoost,25f),
-                new PowerUp(PowerUpType.SpeedSlow,       5f)
-            };
-         activePowerUps = new List<PowerUp>();
-         powerUpCoroutines = new Dictionary<PowerUpType, Coroutine>();
+      allPowerUps = new List<PowerUp>()
+         {
+               new PowerUp(PowerUpType.SpeedBoost,     20f),
+               new PowerUp(PowerUpType.DoubleCoins,    20f),
+               new PowerUp(PowerUpType.SeeEnemy,       20f),
+               new PowerUp(PowerUpType.Gun,            -1f),
+               new PowerUp(PowerUpType.EnemySpeedBoost,20f),
+               new PowerUp(PowerUpType.SpeedSlow,       5f)
+         };
+      activePowerUps = new List<PowerUp>();
+      powerUpCoroutines = new Dictionary<PowerUpType, Coroutine>();
 
-         gun.SetActive(false);
+      gun.SetActive(false);
 
-      }
-      else
-      {
-         Destroy(gameObject);
-      }
    }
 
    private void Update()
@@ -48,10 +38,10 @@ public class PowerUpManager : MonoBehaviour
          switch (pw.Type)
          {
             case PowerUpType.SpeedBoost:
-               FirstPersonController.Instance.speedModifier = 1.5f;
+               GameManager.Instance.firstPersonController.speedModifier = 1.5f;
                break;
             case PowerUpType.SpeedSlow:
-               FirstPersonController.Instance.speedModifier = 0.25f;
+               GameManager.Instance.firstPersonController.speedModifier = 0.25f;
                break;
             case PowerUpType.Gun:
                if (gun != null && !gun.activeSelf)
@@ -103,9 +93,9 @@ public class PowerUpManager : MonoBehaviour
       if (type == PowerUpType.Gun)
       {
          gun?.SetActive(true);
-         UIManager.Instance.SetPowerUpText(type,
-             $"{GunController.Instance.ammoSize}/" +
-             $"{GunController.Instance.ammoSize}"
+         GameManager.Instance.uIManager.SetPowerUpText(type,
+             $"{GameManager.Instance.gunController.ammoSize}/" +
+             $"{GameManager.Instance.gunController.ammoSize}"
          );
          return;
       }
@@ -131,17 +121,17 @@ public class PowerUpManager : MonoBehaviour
          powerUpCoroutines.Remove(type);
       }
 
-      UIManager.Instance.SetPowerUpText(type, string.Empty);
+      GameManager.Instance.uIManager.SetPowerUpText(type, string.Empty);
 
       if (type == PowerUpType.Gun)
       {
          gun?.SetActive(false);
-         GunController.Instance.ResetAmmo();
+         GameManager.Instance.gunController.ResetAmmo();
       }
       else if (type == PowerUpType.SpeedBoost ||
                type == PowerUpType.SpeedSlow)
       {
-         FirstPersonController.Instance.speedModifier = 1f;
+         GameManager.Instance.firstPersonController.speedModifier = 1f;
       }
       else if (type == PowerUpType.EnemySpeedBoost)
       {
@@ -163,7 +153,7 @@ public class PowerUpManager : MonoBehaviour
 
       while (timeLeft > 0f)
       {
-         UIManager.Instance.SetPowerUpText(
+         GameManager.Instance.uIManager.SetPowerUpText(
              pw.Type,
              timeLeft.ToString("F1") + "s"
          );
@@ -171,7 +161,7 @@ public class PowerUpManager : MonoBehaviour
          timeLeft -= 0.1f;
       }
 
-      UIManager.Instance.SetPowerUpText(pw.Type, string.Empty);
+      GameManager.Instance.uIManager.SetPowerUpText(pw.Type, string.Empty);
       powerUpCoroutines.Remove(pw.Type);
       DeactivatePowerUp(pw.Type);
    }

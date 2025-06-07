@@ -26,7 +26,7 @@ public class RouletteTable : MachineController
 
       if (showingChooseColor)
       {
-         UIManager.Instance.ShowInteractText(
+         GameManager.Instance.uIManager.ShowInteractText(
            "Choose a color: R = Red, G = Green, B = Black");
 
          if (Input.GetKeyDown(KeyCode.R)) ChooseColor(0);
@@ -48,13 +48,13 @@ public class RouletteTable : MachineController
 
       GameManager.Instance.AddCoins(-RequiredCoins);
 
-      UIManager.Instance.ShowInteractText(
+      GameManager.Instance.uIManager.ShowInteractText(
         "Choose a color: R = Red, G = Green, B = Black");
    }
 
    private void ChooseColor(int color)
    {
-      UIManager.Instance.HideInteractText();
+      GameManager.Instance.uIManager.HideInteractText();
       showingChooseColor = false;
       StartSpin(color);
    }
@@ -75,7 +75,7 @@ public class RouletteTable : MachineController
       }
 
       bool openFinalDoor = Random.value > 1 - (float)GameManager.Instance.chanceForKey / 100; // 5% chance of opening final door
-      if (openFinalDoor && !FinishController.Instance.hasKey) { FinishController.Instance.OpenDoor(); yield return null; }
+      if (openFinalDoor && !GameManager.Instance.finishController.hasKey) { GameManager.Instance.finishController.OpenDoor(); yield return null; }
       else
       {
          bool success = Random.value > (color == 0 ? 18 / 37f : (color == 1 ? 18 / 37f : 1 / 37f));
@@ -92,7 +92,7 @@ public class RouletteTable : MachineController
                case 2: finalZ = (360f / 37f) * 1f; break;
             }
 
-            PowerUpManager.Instance.ActivateRandomPowerUp();
+            GameManager.Instance.powerUpManager.ActivateRandomPowerUp();
 
          }
          else
@@ -100,7 +100,7 @@ public class RouletteTable : MachineController
             int randomBin = Random.Range(0, 12);
             finalZ = (360f / 12f) * randomBin;
 
-            PowerUpManager.Instance.ActivateRandomDebuff();
+            GameManager.Instance.powerUpManager.ActivateRandomDebuff();
          }
 
          rouletteWheel.transform.localRotation =
@@ -111,7 +111,7 @@ public class RouletteTable : MachineController
            );
 
          hasChargedCoins = false;
-         UIManager.Instance.ShowInteractText(
+         GameManager.Instance.uIManager.ShowInteractText(
            $"Press E to play ({RequiredCoins} coins)");
 
          MachineController.canDiscountCoins = true;

@@ -64,6 +64,7 @@ public class SceneLoader : MonoBehaviour
    public void IntoMaze()
    {
       StartCoroutine(Transitioning(StartMaze));
+      GameManager.Instance.FetchCachedControllers();
    }
 
    public void IntoMenu()

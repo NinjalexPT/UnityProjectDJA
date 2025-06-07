@@ -3,9 +3,6 @@ using UnityEngine;
 
 public class FinishController : MonoBehaviour
 {
-
-   public static FinishController Instance;
-
    private BoxCollider boxCollider;
    private GameObject passTextObject;
    private TextMeshProUGUI passText;
@@ -13,20 +10,11 @@ public class FinishController : MonoBehaviour
    public bool hasKey = false;
    public bool canOpenDoor;
 
-
    void Awake()
    {
-      if (Instance == null)
-      {
-         Instance = this;
-      }
-      else
-      {
-         Destroy(gameObject);
-      }
+      GameManager.Instance.FetchCachedControllers();
    }
 
-   // Start is called once before the first execution of Update after the MonoBehaviour is created
    void Start()
    {
       GameObject opening = GameObject.Find("Opening");
@@ -68,7 +56,7 @@ public class FinishController : MonoBehaviour
    {
       if (!(other.tag == "Player") || hasKey == false) return;
 
-      UIManager.Instance.ShowInteractText("Press E to use Mysterious Key");
+      GameManager.Instance.uIManager.ShowInteractText("Press E to use Mysterious Key");
       canOpenDoor = true;
    }
 
@@ -76,7 +64,7 @@ public class FinishController : MonoBehaviour
    {
       if (!(other.tag == "Player") || hasKey == true) return;
 
-      UIManager.Instance.HideInteractText();
+      GameManager.Instance.uIManager.HideInteractText();
       canOpenDoor = false;
    }
 
@@ -84,7 +72,7 @@ public class FinishController : MonoBehaviour
    {
       hasKey = true;
       SoundManager.Instance.PlayDoorSound();
-      UIManager.Instance.ShowKeyUI();
+      GameManager.Instance.uIManager.ShowKeyUI();
    }
 
 }

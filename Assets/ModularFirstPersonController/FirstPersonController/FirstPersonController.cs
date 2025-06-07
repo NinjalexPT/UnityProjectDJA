@@ -142,21 +142,9 @@ public class FirstPersonController : MonoBehaviour
 
    #endregion
 
-   public static FirstPersonController Instance { get; private set; }
 
    private void Awake()
    {
-
-      if (Instance == null)
-      {
-         Instance = this;
-      }
-      else
-      {
-         Destroy(gameObject);
-         return;
-      }
-
       RenderSettings.fog = GameManager.Instance.fog;
 
       rb = GetComponent<Rigidbody>();
@@ -213,17 +201,17 @@ public class FirstPersonController : MonoBehaviour
       if (UIManager.isPauseScreenActive)
       {
          print("Resume Game");
-         UIManager.Instance.HidePauseScreen();
+         GameManager.Instance.uIManager.HidePauseScreen();
 
-         print(UIManager.Instance.gameObject.name);
+         print(GameManager.Instance.uIManager.gameObject.name);
       }
       else
       {
          print("Pause Game");
-         UIManager.Instance.ShowPauseScreen();
+         GameManager.Instance.uIManager.ShowPauseScreen();
          Cursor.visible = true;
          Cursor.lockState = CursorLockMode.None;
-         print(UIManager.Instance.gameObject.name);
+         print(GameManager.Instance.uIManager.gameObject.name);
       }
 
    }
@@ -232,7 +220,7 @@ public class FirstPersonController : MonoBehaviour
    {
 
       GameManager.Instance.gameOver = false;
-      PowerUpManager.Instance.DeactivatePowerUp(PowerUpType.Gun);
+      GameManager.Instance.powerUpManager.DeactivatePowerUp(PowerUpType.Gun);
 
       if (lockCursor)
       {

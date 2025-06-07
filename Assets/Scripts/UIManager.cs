@@ -4,8 +4,6 @@ using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
-   public static UIManager Instance;
-
    [SerializeField] private TextMeshProUGUI coinCountText;
    [SerializeField] private GameObject coinObject;
    [SerializeField] private TextMeshProUGUI interactText;
@@ -28,47 +26,33 @@ public class UIManager : MonoBehaviour
    public static bool IsGamePaused = false;
    public static bool isPauseScreenActive;
 
-   void Awake()
-   {
-      if (Instance == null)
-      {
-         Instance = this;
-      }
-      else
-      {
-         Destroy(gameObject);
-         return;
-      }
-
-   }
-
    void Update()
    {
       isPauseScreenActive = pauseScreen.activeSelf;
 
-      if (PowerUpManager.Instance != null)
+      if (GameManager.Instance.powerUpManager != null)
       {
-         speedBoostGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.SpeedBoost));
+         speedBoostGO.SetActive(GameManager.Instance.powerUpManager.IsPowerUpActive(PowerUpType.SpeedBoost));
          // speedBoostGO.GetComponentInChildren<TextMeshProUGUI>().text =
-         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.SpeedBoost).ToString("F1") + "s";
+         //   GameManager.Instance.powerUpManager.GetPowerUpDuration(PowerUpType.SpeedBoost).ToString("F1") + "s";
 
-         doubleCoinsGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.DoubleCoins));
+         doubleCoinsGO.SetActive(GameManager.Instance.powerUpManager.IsPowerUpActive(PowerUpType.DoubleCoins));
          // doubleCoinsGO.GetComponentInChildren<TextMeshProUGUI>().text =
-         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.DoubleCoins).ToString("F1") + "s";
+         //   GameManager.Instance.powerUpManager.GetPowerUpDuration(PowerUpType.DoubleCoins).ToString("F1") + "s";
 
-         seeEnemyGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.SeeEnemy));
+         seeEnemyGO.SetActive(GameManager.Instance.powerUpManager.IsPowerUpActive(PowerUpType.SeeEnemy));
          // seeEnemyGO.GetComponentInChildren<TextMeshProUGUI>().text =
-         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.SeeEnemy).ToString("F1") + "s";
+         //   GameManager.Instance.powerUpManager.GetPowerUpDuration(PowerUpType.SeeEnemy).ToString("F1") + "s";
 
-         gunGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.Gun));
+         gunGO.SetActive(GameManager.Instance.powerUpManager.IsPowerUpActive(PowerUpType.Gun));
 
-         enemySpeedBoostGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.EnemySpeedBoost));
+         enemySpeedBoostGO.SetActive(GameManager.Instance.powerUpManager.IsPowerUpActive(PowerUpType.EnemySpeedBoost));
          // enemySpeedBoostGO.GetComponentInChildren<TextMeshProUGUI>().text =
-         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.EnemySpeedBoost).ToString("F1") + "s";
+         //   GameManager.Instance.powerUpManager.GetPowerUpDuration(PowerUpType.EnemySpeedBoost).ToString("F1") + "s";
 
-         speedSlowGO.SetActive(PowerUpManager.Instance.IsPowerUpActive(PowerUpType.SpeedSlow));
+         speedSlowGO.SetActive(GameManager.Instance.powerUpManager.IsPowerUpActive(PowerUpType.SpeedSlow));
          // speedSlowGO.GetComponentInChildren<TextMeshProUGUI>().text =
-         //   PowerUpManager.Instance.GetPowerUpDuration(PowerUpType.SpeedSlow).ToString("F1") + "s";
+         //   GameManager.Instance.powerUpManager.GetPowerUpDuration(PowerUpType.SpeedSlow).ToString("F1") + "s";
       }
    }
    public void ShowPauseScreen()

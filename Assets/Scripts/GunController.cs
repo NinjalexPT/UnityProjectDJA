@@ -4,7 +4,6 @@ using System.Collections;
 [RequireComponent(typeof(LineRenderer))]
 public class GunController : MonoBehaviour
 {
-   public static GunController Instance;
 
    [Header("Munição")]
    public int ammoSize = 3;
@@ -19,16 +18,6 @@ public class GunController : MonoBehaviour
 
    void Awake()
    {
-      if (Instance == null)
-      {
-         Instance = this;
-      }
-      else
-      {
-         Destroy(gameObject);
-         return;
-      }
-
       lineRenderer = GetComponent<LineRenderer>();
 
       lineRenderer.positionCount = 2;
@@ -56,7 +45,7 @@ public class GunController : MonoBehaviour
       if (shotsFired < ammoSize)
       {
          shotsFired++;
-         UIManager.Instance.SetPowerUpText(
+         GameManager.Instance.uIManager.SetPowerUpText(
              PowerUpType.Gun,
              $"{ammoSize - shotsFired}/{ammoSize}"
          );
@@ -65,8 +54,8 @@ public class GunController : MonoBehaviour
       else
       {
          shotsFired = 0;
-         PowerUpManager.Instance.DeactivatePowerUp(PowerUpType.Gun);
-         UIManager.Instance.SetPowerUpText(
+         GameManager.Instance.powerUpManager.DeactivatePowerUp(PowerUpType.Gun);
+         GameManager.Instance.uIManager.SetPowerUpText(
              PowerUpType.Gun,
              "3/3");
       }

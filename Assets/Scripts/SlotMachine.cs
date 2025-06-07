@@ -55,7 +55,7 @@ public class SlotMachine : MachineController
       }
 
       bool openFinalDoor = UnityEngine.Random.value > 1 - ((float)GameManager.Instance.chanceForKey / 100); // 5% chance of opening final door
-      if (openFinalDoor && !FinishController.Instance.hasKey) { FinishController.Instance.OpenDoor(); yield return null; }
+      if (openFinalDoor && !GameManager.Instance.finishController.hasKey) { GameManager.Instance.finishController.OpenDoor(); yield return null; }
 
 
       int PowerUpTypeIndex = UnityEngine.Random.Range(0, Enum.GetValues(typeof(PowerUpType)).Length);
@@ -72,8 +72,8 @@ public class SlotMachine : MachineController
             mainCylinders[i].transform.localRotation = initialRotations[i];
          }
       }
-      if (isSuccess) PowerUpManager.Instance.ActivateRandomPowerUp();
-      else PowerUpManager.Instance.ActivateRandomDebuff();
+      if (isSuccess) GameManager.Instance.powerUpManager.ActivateRandomPowerUp();
+      else GameManager.Instance.powerUpManager.ActivateRandomDebuff();
       MachineController.canDiscountCoins = true;
    }
 }
