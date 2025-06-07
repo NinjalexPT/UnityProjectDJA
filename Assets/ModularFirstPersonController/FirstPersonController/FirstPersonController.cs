@@ -92,7 +92,8 @@ public class FirstPersonController : MonoBehaviour
    public float sprintBarHeightPercent = .015f;
 
    // Internal Variables
-   private CanvasGroup sprintBarCG;
+   [Header("Movement")]
+   public CanvasGroup sprintBarCG;
    private bool isSprinting = false;
    private float sprintRemaining;
    private float sprintBarWidth;
@@ -192,6 +193,9 @@ public class FirstPersonController : MonoBehaviour
       escAction = new InputAction(binding: "<Keyboard>/escape");
       escAction.performed += OnEscInput;
 
+      Cursor.lockState = CursorLockMode.Locked;
+      Cursor.visible = false;
+
    }
 
    void OnEnable()
@@ -247,8 +251,6 @@ public class FirstPersonController : MonoBehaviour
 
       #region Sprint Bar
 
-      sprintBarCG = GetComponentInChildren<CanvasGroup>();
-
       if (useSprintBar)
       {
          sprintBarBG.gameObject.SetActive(true);
@@ -276,12 +278,6 @@ public class FirstPersonController : MonoBehaviour
 
       #endregion
    }
-
-
-
-
-
-
 
    float camRotation;
 
@@ -732,6 +728,17 @@ public class FirstPersonControllerEditor : Editor
       GUILayout.Label("Sprint", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft, fontStyle = FontStyle.Bold, fontSize = 13 }, GUILayout.ExpandWidth(true));
 
       fpc.enableSprint = EditorGUILayout.ToggleLeft(new GUIContent("Enable Sprint", "Determines if the player is allowed to sprint."), fpc.enableSprint);
+
+      EditorGUILayout.BeginHorizontal();
+      EditorGUILayout.PrefixLabel(
+          new GUIContent("Sprint Bar CG",
+                        "CanvasGroup para controlar fade do sprint bar"));
+      fpc.sprintBarCG = (CanvasGroup)EditorGUILayout.ObjectField(
+          fpc.sprintBarCG,
+          typeof(CanvasGroup),
+          true
+      );
+      EditorGUILayout.EndHorizontal();
 
       GUI.enabled = fpc.enableSprint;
       fpc.unlimitedSprint = EditorGUILayout.ToggleLeft(new GUIContent("Unlimited Sprint", "Determines if 'Sprint Duration' is enabled. Turning this on will allow for unlimited sprint."), fpc.unlimitedSprint);

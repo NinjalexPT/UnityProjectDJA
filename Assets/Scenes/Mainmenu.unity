@@ -393,10 +393,11 @@ MonoBehaviour:
   winSound: {fileID: 8300000, guid: 09719fdd32f454037b70f6bb9a0cc898, type: 3}
   loseSound: {fileID: 8300000, guid: 6e0563407ce9f4ad49f04c9b87d7c9e9, type: 3}
   gunSound: {fileID: 8300000, guid: 575c78a282621430eb7f77a68c8864d0, type: 3}
+  whereAmIClip: {fileID: 8300000, guid: 02c0c82587fed4ffea6e5c9aadd4ab61, type: 3}
   doorSound: {fileID: 8300000, guid: a49ed38d5152b4f35bd19c5980108029, type: 3}
   musicClip: {fileID: 8300000, guid: 1c1069c2ccb8c4e6582b1593da5734e9, type: 3}
-  musicVolume: 50
-  sfxVolume: 50
+  musicVolume: 0.1
+  sfxVolume: 0.1
 --- !u!1 &852059921
 GameObject:
   m_ObjectHideFlags: 0
@@ -1086,9 +1087,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5901ffa6eca71453bbabc5747b5ec732, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinCount: 0
+  coinCount: 10000
   fog: 1
   gameOver: 0
+  skipIntro: 1
+  coinReappearingTimer: 30
   SFX_VOLUME_KEY: SFXVolume
   MUSIC_VOLUME_KEY: MusicVolume
   VSYNC_KEY: VSYNCName
@@ -1619,27 +1622,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 100
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1671,7 +1674,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 52
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1720,27 +1723,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 100
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_LocalPosition.x

@@ -45,7 +45,6 @@ public class CutsceneManager : MonoBehaviour
       cameraObj.GetComponent<Animator>().enabled = false;
 
       Cursor.lockState = CursorLockMode.None;
-      Cursor.visible = true;
 
       FindFirstObjectByType<SceneLoader>().IntoMaze();
 

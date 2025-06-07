@@ -54,8 +54,7 @@ public class SlotMachine : MachineController
          yield return null;
       }
 
-      bool openFinalDoor = UnityEngine.Random.value > 1 - (float)(GameManager.Instance.chanceForKey / 100); // 5% chance of opening final door
-
+      bool openFinalDoor = UnityEngine.Random.value > 1 - ((float)GameManager.Instance.chanceForKey / 100); // 5% chance of opening final door
       if (openFinalDoor && !FinishController.Instance.hasKey) { FinishController.Instance.OpenDoor(); yield return null; }
 
 

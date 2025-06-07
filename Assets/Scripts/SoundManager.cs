@@ -40,8 +40,10 @@ public class SoundManager : MonoBehaviour
    public AudioClip loseSound;
    public AudioClip gunSound;
 
-   [Header("Finish Door")]
+   [Header("Story")]
+   [SerializeField] private AudioClip whereAmIClip;
    [SerializeField] private AudioClip doorSound;
+
    [Header("Music")]
    [SerializeField] private AudioClip musicClip;
 
@@ -83,6 +85,7 @@ public class SoundManager : MonoBehaviour
             movementSource == null || heartbeatSource == null || chaseSource == null || doorSource == null)
       {
          GetSources();
+         PlayWhereAmI();
          FindPlayer();
          return;
       }
@@ -258,6 +261,12 @@ public class SoundManager : MonoBehaviour
    public void PlayWalking() => PlayMovementSound(walkingSound);
    public void PlayRunning() => PlayMovementSound(runningSound);
 
+   public void PlayWhereAmI()
+   {
+      sfxSource.PlayOneShot(whereAmIClip);
+      print("where m i should have played");
+   }
+
    public void PlayBreathingSound(AudioSource monsterAudioSource)
    {
       monsterAudioSource.PlayOneShot(breathingSound);
@@ -277,7 +286,7 @@ public class SoundManager : MonoBehaviour
    {
       if (SceneManager.GetActiveScene().name == "Maingame")
       {
-         musicSource = GameObject.Find("Music Source")?.GetComponent<AudioSource>();
+         musicSource = GameObject.Find("Music")?.GetComponent<AudioSource>();
          if (musicSource != null)
          {
             musicSource.volume = musicVolume;

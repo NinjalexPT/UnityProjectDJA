@@ -452,11 +452,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_LocalPosition.x
@@ -549,11 +549,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_LocalPosition.x
@@ -779,7 +779,7 @@ MonoBehaviour:
   fadeIn: {fileID: 1137145261}
   fadeOut: {fileID: 1266927959}
   audioSource: {fileID: 1670763227}
-  audioClip: {fileID: 8300000, guid: 575c78a282621430eb7f77a68c8864d0, type: 3}
+  audioClip: {fileID: 8300000, guid: 257842436a1fd4421aa8b1b3954f5140, type: 3}
   cameraObj: {fileID: 1948412061}
   animationClip: {fileID: 7400000, guid: a81cc70b6fe094a55bddd9808a0d1240, type: 2}
 --- !u!1 &1266927959 stripped

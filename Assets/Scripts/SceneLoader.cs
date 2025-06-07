@@ -29,7 +29,7 @@ public class SceneLoader : MonoBehaviour
 
    public void StartGame()
    {
-      SceneManager.LoadScene("FirstRoom");
+      SceneManager.LoadScene(GameManager.Instance.skipIntro ? "MainGame" : "FirstRoom");
    }
    public void StartMaze()
    {
@@ -52,7 +52,7 @@ public class SceneLoader : MonoBehaviour
       }
       else
       {
-         Debug.LogWarning("GameMenuScreen n�o foi encontrado como filho deste Canvas.");
+         Debug.LogWarning("GameMenuScreen nï¿½o foi encontrado como filho deste Canvas.");
       }
    }
 
@@ -100,7 +100,7 @@ public class SceneLoader : MonoBehaviour
 
       if (OutTrans == null)
       {
-         Debug.LogError("GameObject 'OutTransition' n�o foi encontrado!");
+         Debug.LogError("GameObject 'OutTransition' nï¿½o foi encontrado!");
          yield break;
       }
 
@@ -109,13 +109,13 @@ public class SceneLoader : MonoBehaviour
       animatorOutTrans = OutTrans.GetComponent<Animator>();
       if (animatorOutTrans == null)
       {
-         Debug.LogError(" Animator n�o encontrado em 'OutTransition'.");
+         Debug.LogError(" Animator nï¿½o encontrado em 'OutTransition'.");
          yield break;
       }
 
       if (string.IsNullOrEmpty(OutTransitionAnim))
       {
-         Debug.LogError(" O nome da anima��o est� vazio.");
+         Debug.LogError(" O nome da animaï¿½ï¿½o estï¿½ vazio.");
          yield break;
       }
 
@@ -129,7 +129,5 @@ public class SceneLoader : MonoBehaviour
 
       onComplete?.Invoke();
    }
-
-
 
 }

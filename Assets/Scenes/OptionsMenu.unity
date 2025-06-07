@@ -566,14 +566,14 @@ MonoBehaviour:
       - m_Target: {fileID: 1904554240}
         m_TargetAssemblyTypeName: OptionsManager, Assembly-CSharp
         m_MethodName: OnVSyncChange
-        m_Mode: 6
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &76265351
 MonoBehaviour:
@@ -925,27 +925,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 100
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_LocalPosition.x
@@ -977,7 +977,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 45
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6624748170158008410, guid: d4d5adc2cc566664da2c89123af3f995, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -2109,7 +2109,7 @@ GameObject:
   - component: {fileID: 614139359}
   - component: {fileID: 614139358}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: VSYNCTEXT
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2295,27 +2295,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 100
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 7006114878540378237, guid: 0cb84ee8673f1ed47950cb268cff42aa, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4421,6 +4421,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38a211f23515b4afb9d92f04051f65bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  vsyncText: {fileID: 614139358}
 --- !u!4 &1904554241
 Transform:
   m_ObjectHideFlags: 0

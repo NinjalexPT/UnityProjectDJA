@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -10,6 +11,9 @@ public class GameManager : MonoBehaviour
    [SerializeField] private int coinCount;
    public bool fog;
    public bool gameOver;
+
+   public bool skipIntro = false;
+   public float coinReappearingTimer = 30f;
 
    [Header("Player Preferences")]
    public string SFX_VOLUME_KEY = "SFXVolume";
@@ -33,7 +37,6 @@ public class GameManager : MonoBehaviour
 
    void Start()
    {
-
       if (UIManager.Instance != null)
          UIManager.Instance.UpdateCoinCount(coinCount);
    }

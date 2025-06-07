@@ -39,6 +39,7 @@ public class UIManager : MonoBehaviour
          Destroy(gameObject);
          return;
       }
+
    }
 
    void Update()
@@ -81,6 +82,7 @@ public class UIManager : MonoBehaviour
       Cursor.lockState = CursorLockMode.None;
       Cursor.visible = true;
 
+      AudioListener.pause = true;
       SoundManager.Instance.PauseAllSound();
    }
    public void HidePauseScreen()
@@ -90,6 +92,7 @@ public class UIManager : MonoBehaviour
       FindFirstObjectByType<FirstPersonController>().cameraCanMove = true;
       Time.timeScale = 1f;
       pauseScreen.SetActive(false);
+      AudioListener.pause = false;
 
       Cursor.lockState = CursorLockMode.Locked;
       Cursor.visible = false;
