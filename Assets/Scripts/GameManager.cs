@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviour
    public UIManager uIManager;
    public FinishController finishController;
 
+   public bool restarting;
+
    public void FetchCachedControllers()
    {
       print("fetching cached controllers");
@@ -100,6 +102,7 @@ public class GameManager : MonoBehaviour
 
    public void RestartGame()
    {
+      restarting = true;
       SceneManager.LoadScene(SceneManager
         .GetActiveScene().buildIndex);
    }

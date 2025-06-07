@@ -1,5 +1,16 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+
+[Serializable]
+public class Dialogue
+{
+   [TextArea(2, 5)]
+   public string text;
+   public float duration = 2f;
+}
 
 public class CutsceneManager : MonoBehaviour
 {
@@ -8,46 +19,77 @@ public class CutsceneManager : MonoBehaviour
    [SerializeField] private GameObject fadeIn;
    [SerializeField] private GameObject fadeOut;
 
+   [Space]
+   [Header("Dialog")]
+   [SerializeField] private GameObject dialogObject;
+   [SerializeField] private TextMeshProUGUI dialogTMP;
+   [SerializeField] private List<Dialogue> dialogues = new List<Dialogue>();
+
+   [Space]
    [Header("Sound")]
    [SerializeField] private AudioSource audioSource;
    [SerializeField] private AudioClip audioClip;
 
+   [Space]
    [Header("Animation")]
    [SerializeField] private GameObject cameraObj;
    [SerializeField] private AnimationClip animationClip;
 
-   void Awake()
+   private void Awake()
    {
-
-      if (audioSource == null) { Debug.LogError("audio source not found"); audioSource = FindFirstObjectByType<AudioSource>(); }
-
+      if (audioSource == null)
+      {
+         Debug.LogError("audioSource não está atribuído!");
+         audioSource = GetComponent<AudioSource>();
+      }
       audioSource.volume = SoundManager.Instance.sfxVolume;
-
       Cursor.lockState = CursorLockMode.Locked;
       Cursor.visible = false;
    }
 
-   void Start()
+   private void Start()
    {
+      if (dialogObject != null)
+         dialogObject.SetActive(false);
+
       StartCoroutine(PlayCutscene());
+      StartCoroutine(ShowDialogs());
    }
 
-   IEnumerator PlayCutscene()
+   private IEnumerator ShowDialogs()
    {
-      print("playing animation");
+      if (dialogObject == null ||
+          dialogTMP == null ||
+          dialogues.Count == 0)
+         yield break;
+
+      dialogObject.SetActive(true);
+      foreach (var dlg in dialogues)
+      {
+         dialogTMP.text = dlg.text;
+         yield return new WaitForSeconds(dlg.duration);
+      }
+      dialogObject.SetActive(false);
+   }
+
+   private IEnumerator PlayCutscene()
+   {
       audioSource.PlayOneShot(audioClip);
       yield return new WaitForSeconds(audioClip.length);
+
       blackScreen.SetActive(false);
       fadeIn.SetActive(true);
-      cameraObj.GetComponent<Animator>().enabled = true;
 
-      yield return new WaitForSeconds(animationClip.length - 1f); // animation duration
-      cameraObj.GetComponent<Animator>().enabled = false;
+      var anim = cameraObj?.GetComponent<Animator>();
+      if (anim != null) anim.enabled = true;
+
+      yield return new WaitForSeconds(animationClip.length - 1f);
+
+      if (anim != null) anim.enabled = false;
 
       Cursor.lockState = CursorLockMode.None;
+      Cursor.visible = true;
 
-      FindFirstObjectByType<SceneLoader>().IntoMaze();
-
+      FindObjectOfType<SceneLoader>()?.IntoMaze();
    }
-
 }

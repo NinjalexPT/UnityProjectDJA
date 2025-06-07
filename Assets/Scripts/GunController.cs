@@ -86,7 +86,6 @@ public class GunController : MonoBehaviour
          }
       }
 
-      // Desenha o beam
       lineRenderer.SetPosition(0, startPos);
       lineRenderer.SetPosition(1, endPos);
 

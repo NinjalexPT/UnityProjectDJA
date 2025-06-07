@@ -34,10 +34,10 @@ public class EnemyController : MonoBehaviour
    [SerializeField] private LayerMask obstacleLayers;
 
    [Header("State Timing Controls")]
-   [SerializeField] private float minPatrolTime = 2f;           // Mínimo 2s em patrol
-   [SerializeField] private float minInvestigateTime = 1.5f;    // Mínimo 1.5s em investigating
-   [SerializeField] private float minChaseTime = 1f;           // Mínimo 1s em chase
-   [SerializeField] private float minDeadTime = 0.5f;          // Mínimo 0.5s para confirmar morte
+   [SerializeField] private float minPatrolTime = 2f;
+   [SerializeField] private float minInvestigateTime = 1.5f;
+   [SerializeField] private float minChaseTime = 1f;
+   [SerializeField] private float minDeadTime = 0.5f;
 
    [Header("X-Ray Vision")]
    public static bool seeEnemy = false;
@@ -61,7 +61,6 @@ public class EnemyController : MonoBehaviour
    private float stateStartTime;
    private bool targetSet = false;
 
-   // FLAGS para cada estado
    private bool isInPatrol = false;
    private bool isInInvestigating = false;
    private bool isInChase = false;
@@ -236,9 +235,10 @@ public class EnemyController : MonoBehaviour
 
    void HandlePatrolState()
    {
+      GameManager.Instance.firstPersonController.unlimitedSprint = false;
       Debug.Log($"[PATROL] Target set: {targetSet}, Reached: {HasReachedTarget()}, TimeInState: {timeInCurrentState:F1}s, MinTime: {minPatrolTime}s");
 
-      // SÓ pode mudar de estado depois do tempo mínimo
+
       if (timeInCurrentState >= minPatrolTime)
       {
          if (distanceToPlayer <= investigationDistance)
@@ -263,9 +263,10 @@ public class EnemyController : MonoBehaviour
 
    void HandleInvestigatingState()
    {
+      GameManager.Instance.firstPersonController.unlimitedSprint = false;
       Debug.Log($"[INVESTIGATE] TimeInState: {timeInCurrentState:F1}s, MinTime: {minInvestigateTime}s, HasLineOfSight: {hasLineOfSight}");
 
-      // SÓ pode mudar de estado depois do tempo mínimo
+
       if (timeInCurrentState >= minInvestigateTime)
       {
          if (hasLineOfSight)
@@ -299,9 +300,11 @@ public class EnemyController : MonoBehaviour
    {
       Debug.Log($"[CHASE] TimeInState: {timeInCurrentState:F1}s, MinTime: {minChaseTime}s, HasLineOfSight: {hasLineOfSight}");
 
+      GameManager.Instance.firstPersonController.unlimitedSprint = true;
+
       SetTarget(player.position);
 
-      // SÓ pode sair do chase depois do tempo mínimo
+
       if (timeInCurrentState >= minChaseTime)
       {
          bool shouldExitChase = false;
@@ -334,8 +337,9 @@ public class EnemyController : MonoBehaviour
    void HandleDeadState()
    {
       Debug.Log($"[DEAD] TimeInState: {timeInCurrentState:F1}s, DeathDuration: {deathDuration}s, MinTime: {minDeadTime}s");
+      GameManager.Instance.firstPersonController.unlimitedSprint = false;
 
-      // SÓ pode ressuscitar depois do tempo mínimo E tempo total de morte
+
       if (timeInCurrentState >= minDeadTime && timeInCurrentState >= deathDuration)
       {
          Debug.Log("[DEAD] Respawning!");
@@ -444,9 +448,9 @@ public class EnemyController : MonoBehaviour
       EnemyState previousState = currentState;
       currentState = newState;
       targetSet = false;
-      stateStartTime = Time.time;  // Reset do timer de estado
+      stateStartTime = Time.time;
 
-      // Reset todas as flags
+
       isInPatrol = false;
       isInInvestigating = false;
       isInChase = false;
@@ -465,7 +469,7 @@ public class EnemyController : MonoBehaviour
             agent.speed = investigateSpeed * speedModifier;
             isInInvestigating = true;
 
-            // SÓ chama ToWalk se não veio de Chasing
+
             if (previousState != EnemyState.Chasing)
             {
                Debug.Log("[ANIMATION] Calling ToWalk for INVESTIGATING");
@@ -484,7 +488,6 @@ public class EnemyController : MonoBehaviour
             Debug.Log("[ANIMATION] Calling ToChase for CHASING");
             animator?.SetTrigger("ToChase");
 
-            // Força animação no próximo frame
             StartCoroutine(ForceAnimation("ToChase"));
             break;
 
@@ -495,7 +498,7 @@ public class EnemyController : MonoBehaviour
             Debug.Log("[ANIMATION] Calling ToDie for DEAD");
             animator?.SetTrigger("ToDie");
 
-            // Força animação no próximo frame
+
             StartCoroutine(ForceAnimation("ToDie"));
             break;
       }
@@ -505,8 +508,8 @@ public class EnemyController : MonoBehaviour
 
    IEnumerator ForceAnimation(string triggerName)
    {
-      yield return null; // Wait 1 frame
-      yield return null; // Wait another frame for safety
+      yield return null;
+      yield return null;
 
       if (animator != null)
       {

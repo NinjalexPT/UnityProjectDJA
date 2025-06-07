@@ -14,7 +14,6 @@ public class RouletteTable : MachineController
 
    void Start()
    {
-      // guarda a rotação “de repouso” da roda
       originalRotation = rouletteWheel.transform.localRotation;
    }
 
@@ -74,7 +73,7 @@ public class RouletteTable : MachineController
          yield return null;
       }
 
-      bool openFinalDoor = Random.value > 1 - (float)GameManager.Instance.chanceForKey / 100; // 5% chance of opening final door
+      bool openFinalDoor = Random.value > 1 - (float)GameManager.Instance.chanceForKey / 100;
       if (openFinalDoor && !GameManager.Instance.finishController.hasKey) { GameManager.Instance.finishController.OpenDoor(); yield return null; }
       else
       {
@@ -119,7 +118,6 @@ public class RouletteTable : MachineController
       }
    }
 
-   // se o jogador sair do “gatilho”, escondemos texto e resetamos
    public override void OnTriggerExit(Collider other)
    {
       base.OnTriggerExit(other);

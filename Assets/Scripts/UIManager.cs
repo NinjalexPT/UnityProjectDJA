@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 
 public class UIManager : MonoBehaviour
 {
@@ -25,6 +26,37 @@ public class UIManager : MonoBehaviour
 
    public static bool IsGamePaused = false;
    public static bool isPauseScreenActive;
+
+   [Space]
+   [Header("Dialog")]
+   [SerializeField] private GameObject dialogObject;
+   [SerializeField] private TextMeshProUGUI dialogTMP;
+   [SerializeField] private List<Dialogue> dialogues = new List<Dialogue>();
+   [SerializeField] private float startOffset;
+
+
+   void Start()
+   {
+      StartCoroutine(ShowDialogs());
+   }
+
+   private IEnumerator ShowDialogs()
+   {
+      yield return new WaitForSeconds(startOffset);
+
+      if (dialogObject == null ||
+          dialogTMP == null ||
+          dialogues.Count == 0)
+         yield break;
+
+      dialogObject.SetActive(true);
+      foreach (var dlg in dialogues)
+      {
+         dialogTMP.text = dlg.text;
+         yield return new WaitForSeconds(dlg.duration);
+      }
+      dialogObject.SetActive(false);
+   }
 
    void Update()
    {

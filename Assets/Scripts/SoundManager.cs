@@ -51,7 +51,7 @@ public class SoundManager : MonoBehaviour
    private AudioClip currentMovementSound;
    private bool wasChasing;
    private float cooldownTimer;
-   private bool isChaseSoundFinishing;
+   public bool isChaseSoundFinishing;
 
    public float musicVolume = 100f;
    public float sfxVolume = 100f;
@@ -189,7 +189,7 @@ public class SoundManager : MonoBehaviour
 
    void UpdateSoundCompletion()
    {
-      if (isChaseSoundFinishing && !chaseSource.isPlaying)
+      if (isChaseSoundFinishing && !chaseSource.isPlaying && !GameManager.Instance.restarting)
       {
          Debug.Log("Chase sound finished, starting cooldown");
          isChaseSoundFinishing = false;

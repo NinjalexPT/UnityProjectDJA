@@ -397,7 +397,7 @@ MonoBehaviour:
   doorSound: {fileID: 8300000, guid: a49ed38d5152b4f35bd19c5980108029, type: 3}
   musicClip: {fileID: 8300000, guid: 1c1069c2ccb8c4e6582b1593da5734e9, type: 3}
   musicVolume: 0.1
-  sfxVolume: 0.1
+  sfxVolume: 0.8
 --- !u!1 &852059921
 GameObject:
   m_ObjectHideFlags: 0

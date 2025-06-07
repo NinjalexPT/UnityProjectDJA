@@ -221,6 +221,8 @@ public class FirstPersonController : MonoBehaviour
    {
 
       GameManager.Instance.gameOver = false;
+      GameManager.Instance.restarting = false;
+      SoundManager.Instance.isChaseSoundFinishing = false;
       GameManager.Instance.powerUpManager.DeactivatePowerUp(PowerUpType.Gun);
 
       if (lockCursor)
